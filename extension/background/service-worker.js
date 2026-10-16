@@ -141,28 +141,33 @@ async function handleMacCommand(cmd) {
 
 // Find appropriate tab based on criteria
 async function findTargetTab(preferredAdapter) {
-  // Query all tabs in current window or all windows
+  // 1. TOP PRIORITY: The tab the user is currently viewing on their screen!
+  const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (activeTab && activeTab.url && !activeTab.url.startsWith('chrome://') && !activeTab.url.startsWith('chrome-extension://')) {
+    return activeTab;
+  }
+
+  // 2. Active tab across any normal window
+  const activeTabs = await chrome.tabs.query({ active: true });
+  const validActive = activeTabs.find(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://'));
+  if (validActive) return validActive;
+
+  // 3. Meeting tab if specifically targeted or in background
   const tabs = await chrome.tabs.query({});
   if (!tabs || tabs.length === 0) return null;
 
-  // 1. Look for matching meeting tabs (Demo Chat, Google Meet, Zoom Web)
   const meetingTabs = tabs.filter(t => {
     const u = t.url || '';
-    return u.includes('/demo') || u.includes('meet.google.com') || u.includes('zoom.us/wc');
+    return u.includes('/demo') || u.includes('meet.google.com') || u.includes('zoom.us') || u.includes('teams.microsoft.com');
   });
 
   if (meetingTabs.length > 0) {
-    // If one is active in its window, pick it
     const activeMeeting = meetingTabs.find(t => t.active);
     if (activeMeeting) return activeMeeting;
     return meetingTabs[0];
   }
 
-  // 2. Fall back to the active tab in the currently focused window
-  const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (activeTab) return activeTab;
-
-  return tabs[0];
+  return tabs.find(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://')) || tabs[0];
 }
 
 // Query active tab and send its state to Mac companion

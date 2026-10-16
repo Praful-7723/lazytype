@@ -26,25 +26,14 @@
     "storage"
   ],
   "host_permissions": [
-    "*://*.zoom.us/*",
-    "*://meet.google.com/*",
-    "*://*.teams.microsoft.com/*",
-    "*://*.teams.live.com/*",
-    "*://*.slack.com/*",
-    "http://127.0.0.1/*",
-    "http://localhost/*"
+    "<all_urls>"
   ],
   "content_scripts": [
     {
       "matches": [
-        "*://*.zoom.us/*",
-        "*://meet.google.com/*",
-        "*://*.teams.microsoft.com/*",
-        "*://*.teams.live.com/*",
-        "*://*.slack.com/*",
-        "http://127.0.0.1/*",
-        "http://localhost/*"
+        "<all_urls>"
       ],
+      "all_frames": true,
       "js": [
         "content/dom-injector.js",
         "adapters/demo-chat.js",
