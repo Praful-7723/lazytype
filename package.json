@@ -1,0 +1,23 @@
+{
+  "name": "lazytype",
+  "version": "1.0.0",
+  "description": "Local Android-to-Mac companion controller for hands-free video call chat and typing.",
+  "scripts": {
+    "build:mac": "bash scripts/build-mac.sh",
+    "start:mac": "bash scripts/run-mac.sh",
+    "generate:icons": "python3 scripts/generate-icons.py",
+    "test": "node scripts/test-e2e.js"
+  },
+  "keywords": [
+    "macos",
+    "accessibility",
+    "remote-typing",
+    "pwa",
+    "zoom",
+    "google-meet",
+    "chrome-extension",
+    "websocket"
+  ],
+  "author": "Antigravity Engineering",
+  "license": "MIT"
+}

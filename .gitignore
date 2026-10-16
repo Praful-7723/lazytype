@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+.venv/
+
+# macOS
+.DS_Store
+*.swp
+
+# Build artifacts
+.build/
+*.o
+*.d

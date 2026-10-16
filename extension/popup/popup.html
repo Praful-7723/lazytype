@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LazyType Bridge</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="header">
+      <div class="logo">
+        <span class="icon">⌨️</span>
+        <span class="title">LazyType Bridge</span>
+      </div>
+      <div class="status-pill" id="status-pill">Disconnected</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Mac Companion Connection</div>
+      <div class="server-row">
+        <input type="text" id="server-url-input" class="input" placeholder="ws://127.0.0.1:9123/ws/extension">
+        <button id="reconnect-btn" class="btn">Connect</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Active Browser Tab</div>
+      <div class="info-card">
+        <div class="info-row">
+          <span class="label">Target:</span>
+          <span class="value" id="detected-adapter">Detecting...</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Meeting:</span>
+          <span class="value" id="meeting-status">-</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Chat Field:</span>
+          <span class="value" id="chat-status">-</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <a href="http://127.0.0.1:9123/demo" target="_blank" class="demo-link">Open Interactive Demo Call ➔</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

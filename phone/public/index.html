@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#090d16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>LazyType Remote</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app" class="app-root">
+
+    <!-- Screen 1: Pairing -->
+    <section id="screen-pairing" class="screen active">
+      <div class="pairing-container">
+        <div class="brand">
+          <div class="brand-icon">⌨️</div>
+          <h1>LazyType</h1>
+          <p class="subtitle">Mac Meeting Chat Companion</p>
+        </div>
+
+        <div class="pairing-card">
+          <h2>Pair with your Mac</h2>
+          <p class="card-desc">Scan the pairing QR code shown in your Mac's menu bar app, or enter the local connection address.</p>
+
+          <button id="btn-scan-qr" class="btn btn-primary btn-large">
+            <span class="icon">📷</span> Scan QR from Mac
+          </button>
+
+          <div class="divider"><span>OR ENTER DETAILS</span></div>
+
+          <div class="form-group">
+            <label for="input-host">Mac IP / Host</label>
+            <input type="text" id="input-host" placeholder="192.168.1.50" inputmode="url" autocorrect="off" autocapitalize="none">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="input-port">Port</label>
+              <input type="number" id="input-port" value="9123" placeholder="9123">
+            </div>
+            <div class="form-group flex-2">
+              <label for="input-token">Pairing Token</label>
+              <input type="text" id="input-token" placeholder="pair_xxxx" autocorrect="off" autocapitalize="none">
+            </div>
+          </div>
+
+          <button id="btn-manual-connect" class="btn btn-secondary btn-large">
+            Connect
+          </button>
+        </div>
+
+        <!-- Camera Scanner Overlay -->
+        <div id="scanner-modal" class="modal-overlay hidden">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Scan QR Code</h3>
+              <button id="btn-close-scanner" class="btn-icon">✕</button>
+            </div>
+            <div class="video-wrapper">
+              <video id="qr-video" playsinline></video>
+              <div class="scan-target-box"></div>
+            </div>
+            <p class="scanner-hint">Point your camera at the Mac menu bar pairing QR code</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 2: Controller -->
+    <section id="screen-controller" class="screen">
+      <!-- Status Topbar -->
+      <header class="controller-header">
+        <div class="device-pill">
+          <span class="status-dot connected" id="status-dot"></span>
+          <span class="device-name" id="mac-name">MacBook</span>
+          <span class="connection-label" id="connection-state">Connected ✓</span>
+        </div>
+        <button id="btn-disconnect" class="btn-text-small" title="Disconnect or re-pair">Pairing</button>
+      </header>
+
+      <!-- Context & Target HUD -->
+      <div class="context-hud">
+        <div class="hud-item target-app-item">
+          <span class="hud-label">TARGET</span>
+          <div class="target-selector-wrapper">
+            <select id="target-select" class="target-select">
+              <option value="auto">Auto (Smart Detect)</option>
+              <option value="zoom-native">Zoom (Native App)</option>
+              <option value="zoom-web">Zoom (Web Client)</option>
+              <option value="google-meet">Google Meet</option>
+              <option value="teams-web">Microsoft Teams</option>
+              <option value="slack-web">Slack</option>
+              <option value="demo-chat">Demo Meeting Call</option>
+              <option value="generic">Generic Keyboard</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hud-item">
+          <span class="hud-label">MEETING</span>
+          <span class="hud-badge active" id="badge-meeting">Detected ✓</span>
+        </div>
+
+        <div class="hud-item">
+          <span class="hud-label">CHAT</span>
+          <span class="hud-badge active" id="badge-chat">Ready ✓</span>
+        </div>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="mode-tabs" role="tablist">
+        <button class="mode-tab active" data-mode="send" id="tab-send">Send Mode</button>
+        <button class="mode-tab" data-mode="insert" id="tab-insert">Insert Only</button>
+        <button class="mode-tab" data-mode="live" id="tab-live">Live Typing</button>
+      </div>
+
+      <!-- Quick Canned Replies Bar -->
+      <div class="quick-replies-container">
+        <div class="quick-replies-scroll">
+          <button class="quick-reply-chip" data-text="Can you send me that document?">📄 Send document</button>
+          <button class="quick-reply-chip" data-text="Can you hear me?">🔊 Can you hear me?</button>
+          <button class="quick-reply-chip" data-text="Give me 2 minutes, BRB">⏱️ BRB (2 mins)</button>
+          <button class="quick-reply-chip" data-text="I agree, +1">👍 Agreed / +1</button>
+          <button class="quick-reply-chip" data-text="Thanks everyone!">🙏 Thanks!</button>
+          <button class="quick-reply-chip" data-text="I'm on mute, speaking now">🎙️ Speaking now</button>
+          <button class="quick-reply-chip" data-text="Please check your screen share">🖥️ Check screen</button>
+        </div>
+      </div>
+
+      <!-- Main Input Stage -->
+      <div class="input-card">
+        <div class="textarea-wrapper">
+          <textarea
+            id="message-input"
+            class="message-textarea"
+            placeholder="Type message here... (e.g. Can you share that document?)"
+            enterkeyhint="send"
+            autocapitalize="sentences"
+            rows="3"
+          ></textarea>
+          <div class="textarea-actions">
+            <button id="btn-voice-dictate" class="btn-voice" title="Dictate with voice" aria-label="Voice input">🎙️</button>
+            <button id="btn-clear-text" class="btn-clear hidden" title="Clear text">✕</button>
+          </div>
+        </div>
+
+        <!-- Primary Action Button -->
+        <button id="btn-send-message" class="btn btn-send">
+          <span class="send-icon">➔</span>
+          <span class="send-text" id="send-button-label">SEND MESSAGE</span>
+        </button>
+      </div>
+
+      <!-- Quick Meeting Controls Bar -->
+      <div class="quick-controls-grid">
+        <button id="btn-mute" class="quick-btn" title="Toggle audio mute">
+          <span class="quick-icon">🎙️</span>
+          <span class="quick-label" id="quick-mute-label">Mute</span>
+        </button>
+
+        <button id="btn-camera" class="quick-btn" title="Toggle camera">
+          <span class="quick-icon">📹</span>
+          <span class="quick-label" id="quick-cam-label">Camera</span>
+        </button>
+
+        <button id="btn-open-chat" class="quick-btn" title="Open meeting chat panel">
+          <span class="quick-icon">💬</span>
+          <span class="quick-label">Open Chat</span>
+        </button>
+
+        <button id="btn-paste" class="quick-btn" title="Paste clipboard text to Mac">
+          <span class="quick-icon">📋</span>
+          <span class="quick-label">Paste</span>
+        </button>
+      </div>
+
+      <!-- Quick Emulation Keys -->
+      <div class="keypad-row">
+        <button class="key-btn" data-key="Enter">↵ Enter</button>
+        <button class="key-btn" data-key="Backspace">⌫ Back</button>
+        <button class="key-btn" data-key="Tab">Tab</button>
+        <button class="key-btn" data-key="Escape">Esc</button>
+      </div>
+
+      <!-- Message History (Recent Sent) -->
+      <div class="history-section">
+        <div class="history-header">
+          <span class="history-title">Recently Sent</span>
+          <button id="btn-clear-history" class="btn-text-tiny">Clear</button>
+        </div>
+        <div id="history-list" class="history-list">
+          <div class="history-empty">No recent messages yet</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+      <span id="toast-message">Message sent ✓</span>
+    </div>
+
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

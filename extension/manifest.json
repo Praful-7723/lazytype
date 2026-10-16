@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "LazyType Mac Remote Bridge",
+  "version": "1.0.0",
+  "description": "Seamlessly routes remote typing and chat commands from your phone into browser video calls (Zoom, Meet, Demo).",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "LazyType Companion Bridge",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "permissions": [
+    "tabs",
+    "alarms",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.zoom.us/*",
+    "*://meet.google.com/*",
+    "*://*.teams.microsoft.com/*",
+    "*://*.teams.live.com/*",
+    "*://*.slack.com/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.zoom.us/*",
+        "*://meet.google.com/*",
+        "*://*.teams.microsoft.com/*",
+        "*://*.teams.live.com/*",
+        "*://*.slack.com/*",
+        "http://127.0.0.1/*",
+        "http://localhost/*"
+      ],
+      "js": [
+        "content/dom-injector.js",
+        "adapters/demo-chat.js",
+        "adapters/google-meet.js",
+        "adapters/zoom-web.js",
+        "adapters/teams-web.js",
+        "adapters/slack-web.js",
+        "adapters/generic-web.js",
+        "content/content-script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
