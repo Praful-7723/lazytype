@@ -1,11 +1,34 @@
 /**
  * LazyType Phone Companion PWA Application
+ * Frictionless Instant Pairing & One-Handed Controller
  */
 
 (function () {
   'use strict';
 
-  // State
+  // Safe LocalStorage Helpers (never crash on private browsing or restricted WebViews)
+  function safeGetStorage(key, defaultVal = '') {
+    try {
+      const v = localStorage.getItem(key);
+      return v !== null ? v : defaultVal;
+    } catch (e) {
+      return defaultVal;
+    }
+  }
+
+  function safeSetStorage(key, val) {
+    try {
+      localStorage.setItem(key, val);
+    } catch (e) {}
+  }
+
+  function safeRemoveStorage(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {}
+  }
+
+  // Application State
   const state = {
     socket: null,
     isConnected: false,
@@ -15,31 +38,38 @@
     host: window.location.hostname || '127.0.0.1',
     port: window.location.port || '9123',
     token: '',
-    sessionToken: localStorage.getItem('lazytype_session_token') || '',
+    sessionToken: safeGetStorage('lazytype_session_token', ''),
     deviceId: getOrCreateDeviceId(),
     deviceName: getDeviceName(),
     macName: 'MacBook',
     activeMode: 'send', // 'send' | 'insert' | 'live'
     target: 'auto',
     pendingRequests: new Map(),
-    messageHistory: JSON.parse(localStorage.getItem('lazytype_history') || '[]'),
+    messageHistory: (() => {
+      try {
+        return JSON.parse(safeGetStorage('lazytype_history', '[]'));
+      } catch (e) {
+        return [];
+      }
+    })(),
     liveDebounceTimer: null,
     isListening: false,
     speechRecognizer: null
   };
 
-  // DOM Elements
+  // DOM Elements - Pairing Screen
   const screenPairing = document.getElementById('screen-pairing');
   const screenController = document.getElementById('screen-controller');
+  const connectTitle = document.getElementById('connect-title');
+  const connectStatus = document.getElementById('connect-status');
+  const btnToggleManual = document.getElementById('btn-toggle-manual');
+  const manualSettingsForm = document.getElementById('manual-settings-form');
   const inputHost = document.getElementById('input-host');
   const inputPort = document.getElementById('input-port');
   const inputToken = document.getElementById('input-token');
   const btnManualConnect = document.getElementById('btn-manual-connect');
-  const btnScanQr = document.getElementById('btn-scan-qr');
-  const btnCloseScanner = document.getElementById('btn-close-scanner');
-  const scannerModal = document.getElementById('scanner-modal');
-  const qrVideo = document.getElementById('qr-video');
 
+  // DOM Elements - Controller Screen
   const statusDot = document.getElementById('status-dot');
   const macNameEl = document.getElementById('mac-name');
   const connectionStateEl = document.getElementById('connection-state');
@@ -69,29 +99,29 @@
   const toast = document.getElementById('toast');
   const toastMessage = document.getElementById('toast-message');
 
-  // Initialize
+  // App Initialization
   init();
 
   function init() {
     registerServiceWorker();
     renderHistory();
     setupEventListeners();
-    checkUrlParamsAndAutoConnect();
+    autoConnectFlow();
   }
 
   function registerServiceWorker() {
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('/sw.js').catch(err => {
-        console.warn('[PWA] Service worker registration failed:', err);
+        console.warn('[PWA] Service worker register failed (ignoring for local dev):', err);
       });
     }
   }
 
   function getOrCreateDeviceId() {
-    let id = localStorage.getItem('lazytype_device_id');
+    let id = safeGetStorage('lazytype_device_id', '');
     if (!id) {
       id = 'phone_' + Math.random().toString(36).substring(2, 10);
-      localStorage.setItem('lazytype_device_id', id);
+      safeSetStorage('lazytype_device_id', id);
     }
     return id;
   }
@@ -105,9 +135,29 @@
     return 'Mobile Companion';
   }
 
+  // Screen Transitions
+  function showScreen(name) {
+    if (name === 'controller') {
+      screenPairing.classList.remove('active');
+      screenPairing.classList.add('hidden');
+      screenController.classList.remove('hidden');
+      screenController.classList.add('active');
+      setTimeout(() => {
+        if (messageInput) messageInput.focus();
+      }, 150);
+    } else {
+      screenController.classList.remove('active');
+      screenController.classList.add('hidden');
+      screenPairing.classList.remove('hidden');
+      screenPairing.classList.add('active');
+    }
+  }
+
+  // Setup UI Event Listeners
   function setupEventListeners() {
     // Mode tabs
     [tabSend, tabInsert, tabLive].forEach(tab => {
+      if (!tab) return;
       tab.addEventListener('click', () => {
         [tabSend, tabInsert, tabLive].forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
@@ -123,79 +173,115 @@
       });
     });
 
-    // Target select
-    targetSelect.addEventListener('change', (e) => {
-      state.target = e.target.value;
-      sendWsMessage({ type: 'SET_TARGET', target: state.target });
-    });
+    // Target selector
+    if (targetSelect) {
+      targetSelect.addEventListener('change', (e) => {
+        state.target = e.target.value;
+        sendWsMessage({ type: 'SET_TARGET', target: state.target });
+      });
+    }
 
     // Send button
-    btnSendMessage.addEventListener('click', handleSendAction);
+    if (btnSendMessage) {
+      btnSendMessage.addEventListener('click', handleSendAction);
+    }
 
-    // Textarea enter to send in 'send' mode
-    messageInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey && state.activeMode === 'send') {
-        e.preventDefault();
-        handleSendAction();
-      }
-    });
+    // Textarea enter key to send in 'send' mode
+    if (messageInput) {
+      messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && state.activeMode === 'send') {
+          e.preventDefault();
+          handleSendAction();
+        }
+      });
 
-    // Textarea input watcher
-    messageInput.addEventListener('input', () => {
-      btnClearText.classList.toggle('hidden', !messageInput.value.trim());
+      // Textarea input watcher
+      messageInput.addEventListener('input', () => {
+        if (btnClearText) {
+          btnClearText.classList.toggle('hidden', !messageInput.value.trim());
+        }
 
-      if (state.activeMode === 'live') {
-        clearTimeout(state.liveDebounceTimer);
-        state.liveDebounceTimer = setTimeout(() => {
-          sendWsMessage({
-            type: 'INSERT_TEXT',
-            target: state.target,
-            text: messageInput.value
-          });
-        }, 150);
-      }
-    });
+        if (state.activeMode === 'live') {
+          clearTimeout(state.liveDebounceTimer);
+          state.liveDebounceTimer = setTimeout(() => {
+            sendWsMessage({
+              type: 'INSERT_TEXT',
+              target: state.target,
+              text: messageInput.value
+            });
+          }, 150);
+        }
+      });
+    }
 
     // Clear text button
-    btnClearText.addEventListener('click', () => {
-      messageInput.value = '';
-      btnClearText.classList.add('hidden');
-      messageInput.focus();
-    });
-
-    // Quick controls
-    btnMute.addEventListener('click', () => {
-      sendWsCommand('TOGGLE_MUTE', {}, (res) => {
-        showToast(res.message || 'Mute toggled', res.success);
+    if (btnClearText) {
+      btnClearText.addEventListener('click', () => {
+        messageInput.value = '';
+        btnClearText.classList.add('hidden');
+        messageInput.focus();
       });
-    });
+    }
 
-    btnCamera.addEventListener('click', () => {
-      sendWsCommand('TOGGLE_CAMERA', {}, (res) => {
-        showToast(res.message || 'Camera toggled', res.success);
-      });
-    });
-
-    btnOpenChat.addEventListener('click', () => {
-      sendWsCommand('OPEN_CHAT', { target: state.target }, (res) => {
-        showToast(res.message || 'Chat panel invoked', res.success);
-      });
-    });
-
-    btnPaste.addEventListener('click', async () => {
-      try {
-        const clipText = await navigator.clipboard.readText();
-        if (clipText) {
-          messageInput.value = clipText;
-          btnClearText.classList.remove('hidden');
-          showToast('Clipboard pasted into message', true);
-        } else {
-          showToast('Clipboard is empty', false);
+    // Quick canned reply chips
+    document.querySelectorAll('.quick-reply-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const text = chip.dataset.text;
+        if (text && messageInput) {
+          messageInput.value = text;
+          if (btnClearText) btnClearText.classList.remove('hidden');
+          messageInput.focus();
+          vibrate(25);
         }
-      } catch (err) {
-        showToast('Clipboard permission needed', false);
-      }
+      });
     });
+
+    // Voice dictation button
+    if (btnVoiceDictate) {
+      btnVoiceDictate.addEventListener('click', toggleVoiceDictation);
+    }
+
+    // Quick meeting controls
+    if (btnMute) {
+      btnMute.addEventListener('click', () => {
+        sendWsCommand('TOGGLE_MUTE', {}, (res) => {
+          showToast(res.message || 'Mute toggled', res.success);
+        });
+      });
+    }
+
+    if (btnCamera) {
+      btnCamera.addEventListener('click', () => {
+        sendWsCommand('TOGGLE_CAMERA', {}, (res) => {
+          showToast(res.message || 'Camera toggled', res.success);
+        });
+      });
+    }
+
+    if (btnOpenChat) {
+      btnOpenChat.addEventListener('click', () => {
+        sendWsCommand('OPEN_CHAT', { target: state.target }, (res) => {
+          showToast(res.message || 'Chat panel invoked', res.success);
+        });
+      });
+    }
+
+    if (btnPaste) {
+      btnPaste.addEventListener('click', async () => {
+        try {
+          const clipText = await navigator.clipboard.readText();
+          if (clipText) {
+            messageInput.value = clipText;
+            if (btnClearText) btnClearText.classList.remove('hidden');
+            showToast('Clipboard pasted', true);
+          } else {
+            showToast('Clipboard is empty', false);
+          }
+        } catch (err) {
+          showToast('Clipboard permission needed', false);
+        }
+      });
+    }
 
     // Emulated key buttons
     document.querySelectorAll('.key-btn').forEach(btn => {
@@ -208,52 +294,58 @@
     });
 
     // Clear history
-    btnClearHistory.addEventListener('click', () => {
-      state.messageHistory = [];
-      localStorage.removeItem('lazytype_history');
-      renderHistory();
-    });
-
-    // Manual pairing form
-    btnManualConnect.addEventListener('click', () => {
-      const host = inputHost.value.trim() || state.host;
-      const port = inputPort.value.trim() || state.port;
-      const token = inputToken.value.trim();
-
-      state.host = host;
-      state.port = port;
-      state.token = token;
-
-      connectWebSocket();
-    });
-
-    // Quick replies chips
-    document.querySelectorAll('.quick-reply-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const text = chip.dataset.text;
-        if (text) {
-          messageInput.value = text;
-          btnClearText.classList.remove('hidden');
-          messageInput.focus();
-          vibrate(25);
-        }
+    if (btnClearHistory) {
+      btnClearHistory.addEventListener('click', () => {
+        state.messageHistory = [];
+        safeRemoveStorage('lazytype_history');
+        renderHistory();
       });
-    });
-
-    // Voice dictation button
-    if (btnVoiceDictate) {
-      btnVoiceDictate.addEventListener('click', toggleVoiceDictation);
     }
 
     // Disconnect button
-    btnDisconnect.addEventListener('click', () => {
-      disconnect();
-      showScreen('pairing');
-    });
+    if (btnDisconnect) {
+      btnDisconnect.addEventListener('click', () => {
+        disconnect();
+        showScreen('pairing');
+        if (connectTitle) connectTitle.textContent = 'Disconnected';
+        if (connectStatus) connectStatus.textContent = 'Tap Connect to re-establish session';
+        if (manualSettingsForm) manualSettingsForm.classList.remove('hidden');
+      });
+    }
 
-    // QR Scanner
-    btnScanQr.addEventListener('click', startQrScanner);
-    btnCloseScanner.addEventListener('click', stopQrScanner);
+    // Toggle manual settings form
+    if (btnToggleManual && manualSettingsForm) {
+      btnToggleManual.addEventListener('click', () => {
+        manualSettingsForm.classList.toggle('hidden');
+      });
+    }
+
+    // Manual connect button
+    if (btnManualConnect) {
+      btnManualConnect.addEventListener('click', async () => {
+        const host = inputHost.value.trim() || state.host;
+        const port = inputPort.value.trim() || state.port;
+        let token = inputToken.value.trim();
+
+        state.host = host;
+        state.port = port;
+
+        if (!token) {
+          try {
+            const res = await fetch(`http://${host}:${port}/api/pair-token`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.token) token = data.token;
+            }
+          } catch (e) {}
+        }
+
+        state.token = token;
+        if (connectTitle) connectTitle.textContent = 'Connecting...';
+        if (connectStatus) connectStatus.textContent = `Attempting handshake with ${host}:${port}`;
+        connectWebSocket();
+      });
+    }
   }
 
   // Voice Dictation (Web Speech API)
@@ -293,7 +385,7 @@
         if (transcript) {
           const currentText = messageInput.value.trim();
           messageInput.value = currentText ? `${currentText} ${transcript}` : transcript;
-          btnClearText.classList.remove('hidden');
+          if (btnClearText) btnClearText.classList.remove('hidden');
 
           if (state.activeMode === 'live') {
             clearTimeout(state.liveDebounceTimer);
@@ -309,7 +401,6 @@
       };
 
       recognition.onerror = (event) => {
-        console.warn('[LazyType] Voice recognition error:', event.error);
         state.isListening = false;
         if (btnVoiceDictate) btnVoiceDictate.classList.remove('listening');
         if (event.error !== 'no-speech') {
@@ -325,13 +416,13 @@
       state.speechRecognizer = recognition;
       recognition.start();
     } catch (err) {
-      console.warn('[LazyType] Failed to start voice recognition:', err);
       state.isListening = false;
       if (btnVoiceDictate) btnVoiceDictate.classList.remove('listening');
       showToast('Could not start microphone', false);
     }
   }
 
+  // Send Message Primary Action
   function handleSendAction() {
     const text = messageInput.value.trim();
     if (!text) {
@@ -347,7 +438,7 @@
           showToast(res.message || 'Message sent ✓', true);
           addToHistory(text);
           messageInput.value = '';
-          btnClearText.classList.add('hidden');
+          if (btnClearText) btnClearText.classList.add('hidden');
         } else {
           showToast(res.message || res.errorCode || 'Failed to send', false);
         }
@@ -364,8 +455,8 @@
     }
   }
 
-  // Check URL params for 1-click QR connection
-  function checkUrlParamsAndAutoConnect() {
+  // Automatic One-Tap Connection Flow
+  async function autoConnectFlow() {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get('token');
     const urlHost = params.get('host');
@@ -375,30 +466,55 @@
     if (urlPort) state.port = urlPort;
     if (urlToken) state.token = urlToken;
 
-    // Fill form fields
-    inputHost.value = state.host;
-    inputPort.value = state.port;
-    if (urlToken) inputToken.value = urlToken;
+    if (inputHost) inputHost.value = state.host;
+    if (inputPort) inputPort.value = state.port;
+    if (inputToken && urlToken) inputToken.value = urlToken;
 
-    // If we have a token or an existing sessionToken, attempt connection!
-    if (urlToken || state.sessionToken) {
+    // 1. Resuming previous session
+    if (state.sessionToken) {
+      if (connectTitle) connectTitle.textContent = 'Resuming Session...';
+      if (connectStatus) connectStatus.textContent = 'Reconnecting with saved authentication';
       connectWebSocket();
-    } else {
-      showScreen('pairing');
+      return;
     }
+
+    // 2. Token passed via QR code scan or 1-click URL
+    if (state.token) {
+      if (connectTitle) connectTitle.textContent = 'Pairing with Mac...';
+      if (connectStatus) connectStatus.textContent = 'Validating pairing credentials';
+      connectWebSocket();
+      return;
+    }
+
+    // 3. User opened page on local network without query params:
+    // Auto-fetch the active pairing token from the local Mac Companion!
+    if (connectTitle) connectTitle.textContent = 'Detecting Mac Companion...';
+    if (connectStatus) connectStatus.textContent = 'Instant handshake in progress';
+
+    try {
+      const res = await fetch('/api/pair-token');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.token) {
+          state.token = data.token;
+          if (inputToken) inputToken.value = data.token;
+          if (connectTitle) connectTitle.textContent = 'Pairing with Mac...';
+          if (connectStatus) connectStatus.textContent = 'Pairing with local companion bridge';
+          connectWebSocket();
+          return;
+        }
+      }
+    } catch (err) {
+      console.log('[LazyType] Auto pair fetch error:', err);
+    }
+
+    // 4. Fallback if automatic discovery couldn't reach API
+    if (connectTitle) connectTitle.textContent = 'Connect to Mac';
+    if (connectStatus) connectStatus.textContent = 'Please confirm connection details below';
+    if (manualSettingsForm) manualSettingsForm.classList.remove('hidden');
   }
 
-  function showScreen(name) {
-    if (name === 'pairing') {
-      screenPairing.classList.add('active');
-      screenController.classList.remove('active');
-    } else {
-      screenPairing.classList.remove('active');
-      screenController.classList.add('active');
-    }
-  }
-
-  // WebSocket Connection
+  // WebSocket Connection & Session Management
   function connectWebSocket() {
     if (state.socket && (state.socket.readyState === WebSocket.OPEN || state.socket.readyState === WebSocket.CONNECTING)) {
       return;
@@ -437,8 +553,8 @@
             deviceName: state.deviceName
           });
         } else {
-          // No credentials
-          showScreen('pairing');
+          // Attempting to fetch token dynamically
+          autoConnectFlow();
         }
       };
 
@@ -456,7 +572,7 @@
         setConnectionStatus('disconnected');
         state.socket = null;
 
-        // Schedule auto-reconnect if we were previously authorized
+        // Auto-reconnect if session token exists
         if (state.sessionToken) {
           scheduleReconnect();
         }
@@ -492,7 +608,7 @@
       state.socket = null;
     }
     state.sessionToken = '';
-    localStorage.removeItem('lazytype_session_token');
+    safeRemoveStorage('lazytype_session_token');
     setConnectionStatus('disconnected');
   }
 
@@ -500,20 +616,26 @@
     if (status === 'connected') {
       state.isConnected = true;
       state.isReconnecting = false;
-      statusDot.className = 'status-dot connected';
-      connectionStateEl.textContent = 'Connected ✓';
-      connectionStateEl.style.color = 'var(--success)';
+      if (statusDot) statusDot.className = 'status-dot connected';
+      if (connectionStateEl) {
+        connectionStateEl.textContent = 'Connected ✓';
+        connectionStateEl.style.color = 'var(--success)';
+      }
       showScreen('controller');
     } else if (status === 'reconnecting') {
       state.isConnected = false;
-      statusDot.className = 'status-dot reconnecting';
-      connectionStateEl.textContent = 'Reconnecting...';
-      connectionStateEl.style.color = 'var(--warning)';
+      if (statusDot) statusDot.className = 'status-dot reconnecting';
+      if (connectionStateEl) {
+        connectionStateEl.textContent = 'Reconnecting...';
+        connectionStateEl.style.color = 'var(--warning)';
+      }
     } else {
       state.isConnected = false;
-      statusDot.className = 'status-dot';
-      connectionStateEl.textContent = 'Disconnected';
-      connectionStateEl.style.color = 'var(--text-secondary)';
+      if (statusDot) statusDot.className = 'status-dot';
+      if (connectionStateEl) {
+        connectionStateEl.textContent = 'Disconnected';
+        connectionStateEl.style.color = 'var(--text-secondary)';
+      }
     }
   }
 
@@ -524,15 +646,19 @@
     if (msg.type === 'PAIR_RESULT') {
       if (msg.success) {
         state.sessionToken = msg.sessionToken;
-        localStorage.setItem('lazytype_session_token', msg.sessionToken);
+        safeSetStorage('lazytype_session_token', msg.sessionToken);
         state.macName = msg.macName || state.macName;
-        macNameEl.textContent = state.macName;
+        if (macNameEl) macNameEl.textContent = state.macName;
         setConnectionStatus('connected');
-        showToast('Paired with ' + state.macName + ' ✓', true);
-        // Request initial status
+        showScreen('controller');
+        showToast('Connected to ' + state.macName + ' ✓', true);
+        vibrate(50);
         sendWsMessage({ type: 'GET_STATUS' });
       } else {
         showToast(msg.message || 'Pairing failed', false);
+        if (connectTitle) connectTitle.textContent = 'Pairing Failed';
+        if (connectStatus) connectStatus.textContent = msg.message || 'Invalid or expired token';
+        if (manualSettingsForm) manualSettingsForm.classList.remove('hidden');
         showScreen('pairing');
       }
       return;
@@ -542,15 +668,15 @@
     if (msg.type === 'AUTH_RESULT') {
       if (msg.success) {
         state.macName = msg.macName || state.macName;
-        macNameEl.textContent = state.macName;
+        if (macNameEl) macNameEl.textContent = state.macName;
         setConnectionStatus('connected');
+        showScreen('controller');
         sendWsMessage({ type: 'GET_STATUS' });
       } else {
-        // Stale session
         state.sessionToken = '';
-        localStorage.removeItem('lazytype_session_token');
-        showToast('Session expired. Please pair again.', false);
-        showScreen('pairing');
+        safeRemoveStorage('lazytype_session_token');
+        showToast('Session expired, re-pairing...', false);
+        autoConnectFlow();
       }
       return;
     }
@@ -568,47 +694,51 @@
         state.pendingRequests.delete(msg.requestId);
         handler(msg);
       }
+      return;
     }
   }
 
   function updateHudUI(status) {
-    if (status.macName) {
+    if (!status) return;
+
+    // Mac Name
+    if (status.macName && macNameEl) {
+      state.macName = status.macName;
       macNameEl.textContent = status.macName;
     }
 
-    if (status.activeApplication) {
-      // Sync target select if set to auto
-      if (state.target === 'auto' && status.adapter) {
-        const opt = targetSelect.querySelector(`option[value="${status.adapter}"]`);
-        if (opt) {
-          targetSelect.value = status.adapter;
-        }
-      }
+    // Target selector auto-sync
+    if (status.adapter && targetSelect && targetSelect.value === 'auto') {
+      // Keep auto selected
     }
 
     // Meeting badge
-    if (status.meetingDetected) {
-      badgeMeeting.textContent = 'Active ✓';
-      badgeMeeting.className = 'hud-badge active';
-    } else {
-      badgeMeeting.textContent = 'None';
-      badgeMeeting.className = 'hud-badge';
+    if (badgeMeeting) {
+      if (status.meetingDetected) {
+        badgeMeeting.textContent = 'Active ✓';
+        badgeMeeting.className = 'hud-badge active';
+      } else {
+        badgeMeeting.textContent = 'None';
+        badgeMeeting.className = 'hud-badge';
+      }
     }
 
     // Chat badge
-    if (status.chatOpen) {
-      badgeChat.textContent = 'Open ✓';
-      badgeChat.className = 'hud-badge active';
-    } else if (status.chatAvailable) {
-      badgeChat.textContent = 'Ready ✓';
-      badgeChat.className = 'hud-badge active';
-    } else {
-      badgeChat.textContent = 'Closed';
-      badgeChat.className = 'hud-badge';
+    if (badgeChat) {
+      if (status.chatOpen) {
+        badgeChat.textContent = 'Open ✓';
+        badgeChat.className = 'hud-badge active';
+      } else if (status.chatAvailable) {
+        badgeChat.textContent = 'Ready ✓';
+        badgeChat.className = 'hud-badge active';
+      } else {
+        badgeChat.textContent = 'Closed';
+        badgeChat.className = 'hud-badge';
+      }
     }
 
     // Mute label
-    if (status.isMuted !== undefined) {
+    if (status.isMuted !== undefined && quickMuteLabel && btnMute) {
       quickMuteLabel.textContent = status.isMuted ? 'Unmute' : 'Mute';
       btnMute.classList.toggle('active', status.isMuted);
     }
@@ -632,7 +762,6 @@
 
     if (callback) {
       state.pendingRequests.set(requestId, callback);
-      // Timeout after 6s
       setTimeout(() => {
         if (state.pendingRequests.has(requestId)) {
           state.pendingRequests.delete(requestId);
@@ -651,11 +780,12 @@
   function addToHistory(text) {
     if (!text) return;
     state.messageHistory = [text, ...state.messageHistory.filter(t => t !== text)].slice(0, 10);
-    localStorage.setItem('lazytype_history', JSON.stringify(state.messageHistory));
+    safeSetStorage('lazytype_history', JSON.stringify(state.messageHistory));
     renderHistory();
   }
 
   function renderHistory() {
+    if (!historyList) return;
     if (!state.messageHistory.length) {
       historyList.innerHTML = '<div class="history-empty">No recent messages yet</div>';
       return;
@@ -667,10 +797,12 @@
       el.className = 'history-item';
       el.textContent = item;
       el.addEventListener('click', () => {
-        messageInput.value = item;
-        btnClearText.classList.remove('hidden');
-        messageInput.focus();
-        vibrate(20);
+        if (messageInput) {
+          messageInput.value = item;
+          if (btnClearText) btnClearText.classList.remove('hidden');
+          messageInput.focus();
+          vibrate(20);
+        }
       });
       historyList.appendChild(el);
     });
@@ -679,6 +811,7 @@
   // Toast Helper
   let toastTimer = null;
   function showToast(msg, isSuccess = true) {
+    if (!toast || !toastMessage) return;
     clearTimeout(toastTimer);
     toastMessage.textContent = msg;
     toast.className = `toast ${isSuccess ? 'success' : 'error'}`;
@@ -691,81 +824,9 @@
 
   function vibrate(ms) {
     if ('vibrate' in navigator) {
-      try { navigator.vibrate(ms); } catch (e) {}
-    }
-  }
-
-  // Camera QR Code Scanner (HTML5 BarcodeDetector)
-  let videoStream = null;
-  let scanInterval = null;
-
-  async function startQrScanner() {
-    scannerModal.classList.remove('hidden');
-
-    try {
-      videoStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
-      });
-      qrVideo.srcObject = videoStream;
-      await qrVideo.play();
-
-      if ('BarcodeDetector' in window) {
-        const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
-        scanInterval = setInterval(async () => {
-          try {
-            const barcodes = await barcodeDetector.detect(qrVideo);
-            if (barcodes.length > 0) {
-              handleScannedValue(barcodes[0].rawValue);
-            }
-          } catch (e) {}
-        }, 200);
-      } else {
-        // Fallback for browsers without native BarcodeDetector
-        console.log('[QR] Native BarcodeDetector not available');
-      }
-    } catch (err) {
-      console.warn('[QR] Camera access error:', err);
-      showToast('Camera access denied or unavailable', false);
-      stopQrScanner();
-    }
-  }
-
-  function stopQrScanner() {
-    clearInterval(scanInterval);
-    if (videoStream) {
-      videoStream.getTracks().forEach(t => t.stop());
-      videoStream = null;
-    }
-    scannerModal.classList.add('hidden');
-  }
-
-  function handleScannedValue(raw) {
-    stopQrScanner();
-    vibrate(60);
-
-    try {
-      // Check if it's a URL like http://192.168.1.50:8765/?token=pair_xyz
-      if (raw.startsWith('http://') || raw.startsWith('https://')) {
-        const url = new URL(raw);
-        state.host = url.hostname;
-        state.port = url.port || '9123';
-        state.token = url.searchParams.get('token') || '';
-
-        inputHost.value = state.host;
-        inputPort.value = state.port;
-        inputToken.value = state.token;
-
-        showToast('QR Code Scanned ✓', true);
-        connectWebSocket();
-        return;
-      }
-
-      // Check if it's a direct token string
-      state.token = raw.trim();
-      inputToken.value = state.token;
-      connectWebSocket();
-    } catch (e) {
-      showToast('Could not parse scanned QR', false);
+      try {
+        navigator.vibrate(ms);
+      } catch (e) {}
     }
   }
 

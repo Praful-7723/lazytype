@@ -24,48 +24,46 @@
         </div>
 
         <div class="pairing-card">
-          <h2>Pair with your Mac</h2>
-          <p class="card-desc">Scan the pairing QR code shown in your Mac's menu bar app, or enter the local connection address.</p>
-
-          <button id="btn-scan-qr" class="btn btn-primary btn-large">
-            <span class="icon">📷</span> Scan QR from Mac
-          </button>
-
-          <div class="divider"><span>OR ENTER DETAILS</span></div>
-
-          <div class="form-group">
-            <label for="input-host">Mac IP / Host</label>
-            <input type="text" id="input-host" placeholder="192.168.1.50" inputmode="url" autocorrect="off" autocapitalize="none">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="input-port">Port</label>
-              <input type="number" id="input-port" value="9123" placeholder="9123">
+          <!-- Automatic Connecting HUD -->
+          <div id="connecting-state" class="connecting-hud">
+            <div class="radar-pulse">
+              <div class="radar-ring ring-1"></div>
+              <div class="radar-ring ring-2"></div>
+              <div class="radar-center">💻</div>
             </div>
-            <div class="form-group flex-2">
-              <label for="input-token">Pairing Token</label>
-              <input type="text" id="input-token" placeholder="pair_xxxx" autocorrect="off" autocapitalize="none">
+            <h2 id="connect-title">Connecting to Mac...</h2>
+            <p id="connect-status" class="card-desc">Establishing secure companion session</p>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill"></div>
             </div>
           </div>
 
-          <button id="btn-manual-connect" class="btn btn-secondary btn-large">
-            Connect
-          </button>
-        </div>
+          <!-- Manual Connection Options (Collapsible Fallback) -->
+          <div class="manual-settings-wrapper">
+            <button id="btn-toggle-manual" class="btn-text-small" type="button">
+              ⚙️ Manual Connection Settings
+            </button>
+            <div id="manual-settings-form" class="manual-settings-form hidden">
+              <div class="form-group">
+                <label for="input-host">Mac IP / Host</label>
+                <input type="text" id="input-host" placeholder="192.168.31.20" inputmode="url" autocorrect="off" autocapitalize="none">
+              </div>
 
-        <!-- Camera Scanner Overlay -->
-        <div id="scanner-modal" class="modal-overlay hidden">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h3>Scan QR Code</h3>
-              <button id="btn-close-scanner" class="btn-icon">✕</button>
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="input-port">Port</label>
+                  <input type="number" id="input-port" value="9123" placeholder="9123">
+                </div>
+                <div class="form-group flex-2">
+                  <label for="input-token">Pairing Token</label>
+                  <input type="text" id="input-token" placeholder="Auto / pair_xxxx" autocorrect="off" autocapitalize="none">
+                </div>
+              </div>
+
+              <button id="btn-manual-connect" class="btn btn-secondary btn-large">
+                Connect Now
+              </button>
             </div>
-            <div class="video-wrapper">
-              <video id="qr-video" playsinline></video>
-              <div class="scan-target-box"></div>
-            </div>
-            <p class="scanner-hint">Point your camera at the Mac menu bar pairing QR code</p>
           </div>
         </div>
       </div>

@@ -27,18 +27,19 @@ public final class PairingManager: @unchecked Sendable {
     
     public func getActivePairingToken() -> String {
         lock.lock()
-        defer { lock.unlock() }
         if let token = currentPairingToken, let expiry = tokenExpiry, expiry > Date() {
-            return token
+            let active = token
+            lock.unlock()
+            return active
         }
         lock.unlock()
         return generateNewPairingToken()
     }
     
-    public func getPairingURL(port: Int = 8765) -> String {
+    public func getPairingURL(port: Int = 9123) -> String {
         let ip = NetworkInterfaceHelper.getLocalIPAddress()
         let token = getActivePairingToken()
-        return "http://\(ip):\(port)/?token=\(token)&host=\(ip)&port=\(port)"
+        return "http://\(ip):\(port)/?token=\(token)&host=\(ip)&port=\(port)&auto=1"
     }
     
     public func validatePairingToken(_ candidate: String) -> Bool {
