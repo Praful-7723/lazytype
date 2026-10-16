@@ -10,6 +10,7 @@ public final class MenuBarManager: NSObject, @unchecked Sendable {
     private var ipItem: NSMenuItem!
     private var phoneStatusItem: NSMenuItem!
     private var targetItem: NSMenuItem!
+    private var launchAtLoginItem: NSMenuItem!
     private var permItem: NSMenuItem!
     private var debugItem: NSMenuItem!
     
@@ -19,10 +20,48 @@ public final class MenuBarManager: NSObject, @unchecked Sendable {
         super.init()
     }
     
+    private func createStatusItemIcon() -> NSImage {
+        let size = NSSize(width: 18, height: 18)
+        let img = NSImage(size: size, flipped: false) { rect in
+            guard let ctx = NSGraphicsContext.current?.cgContext else { return false }
+            
+            // Rounded keyboard bezel
+            let bezelRect = CGRect(x: 1, y: 3, width: 16, height: 12)
+            let path = CGPath(roundedRect: bezelRect, cornerWidth: 2.5, cornerHeight: 2.5, transform: nil)
+            ctx.addPath(path)
+            ctx.setLineWidth(1.3)
+            NSColor.black.setStroke()
+            ctx.strokePath()
+            
+            // Key rows
+            let keys = [
+                CGRect(x: 3.5, y: 10.5, width: 2, height: 1.5),
+                CGRect(x: 8.0, y: 10.5, width: 2, height: 1.5),
+                CGRect(x: 12.5, y: 10.5, width: 2, height: 1.5),
+                CGRect(x: 3.5, y: 7.5, width: 2, height: 1.5),
+                CGRect(x: 8.0, y: 7.5, width: 2, height: 1.5),
+                CGRect(x: 12.5, y: 7.5, width: 2, height: 1.5),
+                CGRect(x: 5.5, y: 4.8, width: 7, height: 1.2)
+            ]
+            for k in keys {
+                let kp = CGPath(roundedRect: k, cornerWidth: 0.5, cornerHeight: 0.5, transform: nil)
+                ctx.addPath(kp)
+                NSColor.black.setFill()
+                ctx.fillPath()
+            }
+            
+            return true
+        }
+        img.isTemplate = true
+        return img
+    }
+    
     public func setup() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
-            button.title = "⌨️ LazyType"
+            button.image = createStatusItemIcon()
+            button.imagePosition = .imageLeft
+            button.title = " LazyType"
             button.toolTip = "LazyType - Phone Meeting Chat Remote"
         }
         
@@ -63,6 +102,11 @@ public final class MenuBarManager: NSObject, @unchecked Sendable {
         menu.addItem(devicesItem)
         
         menu.addItem(NSMenuItem.separator())
+        
+        launchAtLoginItem = NSMenuItem(title: "Launch at Startup", action: #selector(toggleLaunchAtLoginClicked), keyEquivalent: "")
+        launchAtLoginItem.target = self
+        launchAtLoginItem.state = LaunchAtLoginHelper.shared.isLaunchAtLoginEnabled ? .on : .off
+        menu.addItem(launchAtLoginItem)
         
         permItem = NSMenuItem(title: "Check Accessibility Permission...", action: #selector(checkPermClicked), keyEquivalent: "")
         permItem.target = self
@@ -130,6 +174,12 @@ public final class MenuBarManager: NSObject, @unchecked Sendable {
     
     @objc private func showDevicesClicked() {
         DevicesWindowController.shared.showDevices()
+    }
+    
+    @objc private func toggleLaunchAtLoginClicked() {
+        let current = LaunchAtLoginHelper.shared.isLaunchAtLoginEnabled
+        LaunchAtLoginHelper.shared.setLaunchAtLogin(enabled: !current)
+        launchAtLoginItem.state = !current ? .on : .off
     }
     
     @objc private func checkPermClicked() {

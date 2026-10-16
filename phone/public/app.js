@@ -1,12 +1,12 @@
 /**
  * LazyType Phone Companion PWA Application
- * Frictionless Instant Pairing & One-Handed Controller
+ * Liquid Glass Light Theme • High-Precision One-Handed Controller
  */
 
 (function () {
   'use strict';
 
-  // Safe LocalStorage Helpers (never crash on private browsing or restricted WebViews)
+  // Safe LocalStorage Helpers
   function safeGetStorage(key, defaultVal = '') {
     try {
       const v = localStorage.getItem(key);
@@ -41,8 +41,7 @@
     sessionToken: safeGetStorage('lazytype_session_token', ''),
     deviceId: getOrCreateDeviceId(),
     deviceName: getDeviceName(),
-    macName: 'MacBook',
-    activeMode: 'send', // 'send' | 'insert' | 'live'
+    macName: 'MacBook Air',
     target: 'auto',
     pendingRequests: new Map(),
     messageHistory: (() => {
@@ -52,7 +51,6 @@
         return [];
       }
     })(),
-    liveDebounceTimer: null,
     isListening: false,
     speechRecognizer: null
   };
@@ -74,19 +72,14 @@
   const macNameEl = document.getElementById('mac-name');
   const connectionStateEl = document.getElementById('connection-state');
   const btnDisconnect = document.getElementById('btn-disconnect');
-  const targetSelect = document.getElementById('target-select');
-  const badgeMeeting = document.getElementById('badge-meeting');
-  const badgeChat = document.getElementById('badge-chat');
 
-  const tabSend = document.getElementById('tab-send');
-  const tabInsert = document.getElementById('tab-insert');
-  const tabLive = document.getElementById('tab-live');
   const messageInput = document.getElementById('message-input');
   const btnVoiceDictate = document.getElementById('btn-voice-dictate');
   const btnClearText = document.getElementById('btn-clear-text');
   const btnSendMessage = document.getElementById('btn-send-message');
-  const sendButtonLabel = document.getElementById('send-button-label');
 
+  const btnToggleAux = document.getElementById('btn-toggle-aux');
+  const auxControlsDrawer = document.getElementById('aux-controls-drawer');
   const btnMute = document.getElementById('btn-mute');
   const btnCamera = document.getElementById('btn-camera');
   const btnOpenChat = document.getElementById('btn-open-chat');
@@ -104,6 +97,7 @@
 
   function init() {
     registerServiceWorker();
+    renderCanvasLogo();
     renderHistory();
     setupEventListeners();
     autoConnectFlow();
@@ -112,7 +106,7 @@
   function registerServiceWorker() {
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       navigator.serviceWorker.register('/sw.js').catch(err => {
-        console.warn('[PWA] Service worker register failed (ignoring for local dev):', err);
+        console.warn('[PWA] Service worker registration ignored:', err);
       });
     }
   }
@@ -135,6 +129,87 @@
     return 'Mobile Companion';
   }
 
+  // High-DPI Liquid Glass Canvas Brand Logo
+  function renderCanvasLogo() {
+    const canvas = document.getElementById('canvas-logo');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = 160 * dpr;
+    canvas.height = 160 * dpr;
+    ctx.scale(dpr, dpr);
+
+    function draw(time = 0) {
+      ctx.clearRect(0, 0, 160, 160);
+
+      const cx = 80;
+      const cy = 80;
+
+      // Outer Specular Drop Shadow
+      ctx.save();
+      ctx.shadowColor = 'rgba(37, 99, 235, 0.28)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 12;
+
+      // Rounded Glass Keycap Base
+      const w = 98;
+      const h = 78;
+      const r = 26;
+
+      ctx.beginPath();
+      ctx.roundRect(cx - w / 2, cy - h / 2, w, h, r);
+
+      const grad = ctx.createLinearGradient(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 0.96)');
+      grad.addColorStop(0.5, 'rgba(240, 249, 255, 0.88)');
+      grad.addColorStop(1, 'rgba(224, 242, 254, 0.78)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Top Edge Specular Highlight Stroke
+      ctx.lineWidth = 2.5;
+      const strokeGrad = ctx.createLinearGradient(cx, cy - h / 2, cx, cy + h / 2);
+      strokeGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      strokeGrad.addColorStop(0.5, 'rgba(186, 230, 254, 0.7)');
+      strokeGrad.addColorStop(1, 'rgba(147, 197, 253, 0.3)');
+      ctx.strokeStyle = strokeGrad;
+      ctx.stroke();
+      ctx.restore();
+
+      // Inner Tactile Recess
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(cx - 36, cy - 24, 72, 48, 16);
+      ctx.fillStyle = 'rgba(238, 242, 255, 0.9)';
+      ctx.fill();
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.stroke();
+      ctx.restore();
+
+      // Typing Magic Indicator Dots
+      const dots = [-20, 0, 20];
+      dots.forEach((xOffset, i) => {
+        const dotPhase = (time / 320 + i * 0.9) % (Math.PI * 2);
+        const scale = 0.75 + Math.sin(dotPhase) * 0.3;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx + xOffset, cy, 4.5 * scale, 0, Math.PI * 2);
+        ctx.fillStyle = i === 1 ? '#0284c7' : '#2563eb';
+        ctx.shadowColor = 'rgba(37, 99, 235, 0.55)';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.restore();
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    requestAnimationFrame(draw);
+  }
+
   // Screen Transitions
   function showScreen(name) {
     if (name === 'controller') {
@@ -153,63 +228,26 @@
     }
   }
 
-  // Setup UI Event Listeners
+  // Event Listeners
   function setupEventListeners() {
-    // Mode tabs
-    [tabSend, tabInsert, tabLive].forEach(tab => {
-      if (!tab) return;
-      tab.addEventListener('click', () => {
-        [tabSend, tabInsert, tabLive].forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        state.activeMode = tab.dataset.mode;
-
-        if (state.activeMode === 'send') {
-          sendButtonLabel.textContent = 'SEND MESSAGE';
-        } else if (state.activeMode === 'insert') {
-          sendButtonLabel.textContent = 'INSERT ONLY';
-        } else if (state.activeMode === 'live') {
-          sendButtonLabel.textContent = 'LIVE STREAMING';
-        }
-      });
-    });
-
-    // Target selector
-    if (targetSelect) {
-      targetSelect.addEventListener('change', (e) => {
-        state.target = e.target.value;
-        sendWsMessage({ type: 'SET_TARGET', target: state.target });
-      });
-    }
-
-    // Send button
+    // Send Message Button
     if (btnSendMessage) {
       btnSendMessage.addEventListener('click', handleSendAction);
     }
 
-    // Textarea enter key to send in 'send' mode
+    // Textarea enter key to send
     if (messageInput) {
       messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey && state.activeMode === 'send') {
+        if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
           handleSendAction();
         }
       });
 
-      // Textarea input watcher
+      // Clear button toggle
       messageInput.addEventListener('input', () => {
         if (btnClearText) {
           btnClearText.classList.toggle('hidden', !messageInput.value.trim());
-        }
-
-        if (state.activeMode === 'live') {
-          clearTimeout(state.liveDebounceTimer);
-          state.liveDebounceTimer = setTimeout(() => {
-            sendWsMessage({
-              type: 'INSERT_TEXT',
-              target: state.target,
-              text: messageInput.value
-            });
-          }, 150);
         }
       });
     }
@@ -224,7 +262,7 @@
     }
 
     // Quick canned reply chips
-    document.querySelectorAll('.quick-reply-chip').forEach(chip => {
+    document.querySelectorAll('.liquid-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         const text = chip.dataset.text;
         if (text && messageInput) {
@@ -239,6 +277,17 @@
     // Voice dictation button
     if (btnVoiceDictate) {
       btnVoiceDictate.addEventListener('click', toggleVoiceDictation);
+    }
+
+    // Toggle Auxiliary Meeting Drawer
+    if (btnToggleAux && auxControlsDrawer) {
+      btnToggleAux.addEventListener('click', () => {
+        auxControlsDrawer.classList.toggle('hidden');
+        const chevron = btnToggleAux.querySelector('.chevron-icon');
+        if (chevron) {
+          chevron.style.transform = auxControlsDrawer.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      });
     }
 
     // Quick meeting controls
@@ -261,7 +310,7 @@
     if (btnOpenChat) {
       btnOpenChat.addEventListener('click', () => {
         sendWsCommand('OPEN_CHAT', { target: state.target }, (res) => {
-          showToast(res.message || 'Chat panel invoked', res.success);
+          showToast(res.message || 'Chat panel opened', res.success);
         });
       });
     }
@@ -273,18 +322,18 @@
           if (clipText) {
             messageInput.value = clipText;
             if (btnClearText) btnClearText.classList.remove('hidden');
-            showToast('Clipboard pasted', true);
+            showToast('Pasted from clipboard', true);
           } else {
             showToast('Clipboard is empty', false);
           }
         } catch (err) {
-          showToast('Clipboard permission needed', false);
+          showToast('Clipboard access required', false);
         }
       });
     }
 
     // Emulated key buttons
-    document.querySelectorAll('.key-btn').forEach(btn => {
+    document.querySelectorAll('.key-pill-glass').forEach(btn => {
       btn.addEventListener('click', () => {
         const key = btn.dataset.key;
         sendWsCommand('PRESS_KEY', { key }, (res) => {
@@ -386,17 +435,6 @@
           const currentText = messageInput.value.trim();
           messageInput.value = currentText ? `${currentText} ${transcript}` : transcript;
           if (btnClearText) btnClearText.classList.remove('hidden');
-
-          if (state.activeMode === 'live') {
-            clearTimeout(state.liveDebounceTimer);
-            state.liveDebounceTimer = setTimeout(() => {
-              sendWsMessage({
-                type: 'INSERT_TEXT',
-                target: state.target,
-                text: messageInput.value
-              });
-            }, 150);
-          }
         }
       };
 
@@ -422,7 +460,7 @@
     }
   }
 
-  // Send Message Primary Action
+  // Primary Action: SEND MESSAGE
   function handleSendAction() {
     const text = messageInput.value.trim();
     if (!text) {
@@ -432,27 +470,16 @@
 
     vibrate(40);
 
-    if (state.activeMode === 'send') {
-      sendWsCommand('SEND_MESSAGE', { target: state.target, text }, (res) => {
-        if (res.success) {
-          showToast(res.message || 'Message sent ✓', true);
-          addToHistory(text);
-          messageInput.value = '';
-          if (btnClearText) btnClearText.classList.add('hidden');
-        } else {
-          showToast(res.message || res.errorCode || 'Failed to send', false);
-        }
-      });
-    } else if (state.activeMode === 'insert') {
-      sendWsCommand('INSERT_TEXT', { target: state.target, text }, (res) => {
-        if (res.success) {
-          showToast('Text inserted ✓', true);
-          addToHistory(text);
-        } else {
-          showToast(res.message || 'Failed to insert text', false);
-        }
-      });
-    }
+    sendWsCommand('SEND_MESSAGE', { target: state.target, text }, (res) => {
+      if (res.success) {
+        showToast(res.message || 'Message sent ✓', true);
+        addToHistory(text);
+        messageInput.value = '';
+        if (btnClearText) btnClearText.classList.add('hidden');
+      } else {
+        showToast(res.message || res.errorCode || 'Failed to send', false);
+      }
+    });
   }
 
   // Automatic One-Tap Connection Flow
@@ -470,7 +497,7 @@
     if (inputPort) inputPort.value = state.port;
     if (inputToken && urlToken) inputToken.value = urlToken;
 
-    // 1. Resuming previous session
+    // 1. Existing Session Token
     if (state.sessionToken) {
       if (connectTitle) connectTitle.textContent = 'Resuming Session...';
       if (connectStatus) connectStatus.textContent = 'Reconnecting with saved authentication';
@@ -478,7 +505,7 @@
       return;
     }
 
-    // 2. Token passed via QR code scan or 1-click URL
+    // 2. Token from QR Code or Link
     if (state.token) {
       if (connectTitle) connectTitle.textContent = 'Pairing with Mac...';
       if (connectStatus) connectStatus.textContent = 'Validating pairing credentials';
@@ -486,8 +513,7 @@
       return;
     }
 
-    // 3. User opened page on local network without query params:
-    // Auto-fetch the active pairing token from the local Mac Companion!
+    // 3. Auto-Discovery from Mac Server
     if (connectTitle) connectTitle.textContent = 'Detecting Mac Companion...';
     if (connectStatus) connectStatus.textContent = 'Instant handshake in progress';
 
@@ -508,7 +534,7 @@
       console.log('[LazyType] Auto pair fetch error:', err);
     }
 
-    // 4. Fallback if automatic discovery couldn't reach API
+    // 4. Fallback manual view if unreachable
     if (connectTitle) connectTitle.textContent = 'Connect to Mac';
     if (connectStatus) connectStatus.textContent = 'Please confirm connection details below';
     if (manualSettingsForm) manualSettingsForm.classList.remove('hidden');
@@ -535,7 +561,6 @@
         console.log('[LazyType] WebSocket open to', wsUrl);
         state.reconnectDelay = 1000;
 
-        // Perform Handshake: either PAIR or AUTH
         if (state.token) {
           sendWsMessage({
             type: 'PAIR',
@@ -553,7 +578,6 @@
             deviceName: state.deviceName
           });
         } else {
-          // Attempting to fetch token dynamically
           autoConnectFlow();
         }
       };
@@ -572,7 +596,6 @@
         setConnectionStatus('disconnected');
         state.socket = null;
 
-        // Auto-reconnect if session token exists
         if (state.sessionToken) {
           scheduleReconnect();
         }
@@ -618,7 +641,7 @@
       state.isReconnecting = false;
       if (statusDot) statusDot.className = 'status-dot connected';
       if (connectionStateEl) {
-        connectionStateEl.textContent = 'Connected ✓';
+        connectionStateEl.textContent = '• Ready ✓';
         connectionStateEl.style.color = 'var(--success)';
       }
       showScreen('controller');
@@ -626,14 +649,14 @@
       state.isConnected = false;
       if (statusDot) statusDot.className = 'status-dot reconnecting';
       if (connectionStateEl) {
-        connectionStateEl.textContent = 'Reconnecting...';
+        connectionStateEl.textContent = '• Reconnecting...';
         connectionStateEl.style.color = 'var(--warning)';
       }
     } else {
       state.isConnected = false;
       if (statusDot) statusDot.className = 'status-dot';
       if (connectionStateEl) {
-        connectionStateEl.textContent = 'Disconnected';
+        connectionStateEl.textContent = '• Disconnected';
         connectionStateEl.style.color = 'var(--text-secondary)';
       }
     }
@@ -701,43 +724,15 @@
   function updateHudUI(status) {
     if (!status) return;
 
-    // Mac Name
     if (status.macName && macNameEl) {
       state.macName = status.macName;
       macNameEl.textContent = status.macName;
     }
 
-    // Target selector auto-sync
-    if (status.adapter && targetSelect && targetSelect.value === 'auto') {
-      // Keep auto selected
+    if (status.meetingDetected && connectionStateEl) {
+      connectionStateEl.textContent = `• ${status.activeApplication || 'Call'} Active ✓`;
     }
 
-    // Meeting badge
-    if (badgeMeeting) {
-      if (status.meetingDetected) {
-        badgeMeeting.textContent = 'Active ✓';
-        badgeMeeting.className = 'hud-badge active';
-      } else {
-        badgeMeeting.textContent = 'None';
-        badgeMeeting.className = 'hud-badge';
-      }
-    }
-
-    // Chat badge
-    if (badgeChat) {
-      if (status.chatOpen) {
-        badgeChat.textContent = 'Open ✓';
-        badgeChat.className = 'hud-badge active';
-      } else if (status.chatAvailable) {
-        badgeChat.textContent = 'Ready ✓';
-        badgeChat.className = 'hud-badge active';
-      } else {
-        badgeChat.textContent = 'Closed';
-        badgeChat.className = 'hud-badge';
-      }
-    }
-
-    // Mute label
     if (status.isMuted !== undefined && quickMuteLabel && btnMute) {
       quickMuteLabel.textContent = status.isMuted ? 'Unmute' : 'Mute';
       btnMute.classList.toggle('active', status.isMuted);
@@ -779,7 +774,7 @@
   // History Management
   function addToHistory(text) {
     if (!text) return;
-    state.messageHistory = [text, ...state.messageHistory.filter(t => t !== text)].slice(0, 10);
+    state.messageHistory = [text, ...state.messageHistory.filter(t => t !== text)].slice(0, 8);
     safeSetStorage('lazytype_history', JSON.stringify(state.messageHistory));
     renderHistory();
   }
@@ -787,7 +782,7 @@
   function renderHistory() {
     if (!historyList) return;
     if (!state.messageHistory.length) {
-      historyList.innerHTML = '<div class="history-empty">No recent messages yet</div>';
+      historyList.innerHTML = '<div class="history-empty">No recent messages</div>';
       return;
     }
 
@@ -808,13 +803,13 @@
     });
   }
 
-  // Toast Helper
+  // Specular Toast Helper
   let toastTimer = null;
   function showToast(msg, isSuccess = true) {
     if (!toast || !toastMessage) return;
     clearTimeout(toastTimer);
     toastMessage.textContent = msg;
-    toast.className = `toast ${isSuccess ? 'success' : 'error'}`;
+    toast.className = `toast-glass ${isSuccess ? 'success' : 'error'}`;
     toast.classList.remove('hidden');
 
     toastTimer = setTimeout(() => {

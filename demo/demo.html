@@ -6,15 +6,19 @@
   <title>LazyType Video Call - Interactive Demo Target</title>
   <style>
     :root {
-      --bg-dark: #12141a;
-      --card-bg: #1c1f26;
-      --border-color: #2e3440;
+      --bg-porcelain: #f8fafc;
+      --glass-surface: rgba(255, 255, 255, 0.75);
+      --glass-surface-dense: rgba(255, 255, 255, 0.9);
+      --glass-border: rgba(255, 255, 255, 0.85);
+      --glass-border-subtle: rgba(226, 232, 240, 0.8);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
       --accent: #2563eb;
-      --accent-hover: #1d4ed8;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --accent-glow: rgba(37, 99, 235, 0.35);
       --danger: #ef4444;
-      --success: #22c55e;
+      --success: #16a34a;
+      --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
+      --glass-specular: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95);
     }
 
     * {
@@ -24,145 +28,229 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg-dark);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-porcelain);
       color: var(--text-main);
       height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient Mesh Blobs */
+    .ambient-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: 
+        radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.9) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(243, 232, 255, 0.8) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(254, 243, 199, 0.5) 0px, transparent 50%),
+        linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     }
 
     /* Top Meeting Bar */
     header {
-      height: 48px;
-      background: #181b22;
-      border-bottom: 1px solid var(--border-color);
+      height: 52px;
+      background: var(--glass-surface);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow), var(--glass-specular);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 20px;
       font-size: 14px;
+      z-index: 10;
     }
 
     .meeting-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .badge-live {
-      background: rgba(34, 197, 94, 0.2);
+      background: rgba(22, 163, 74, 0.12);
       color: var(--success);
-      border: 1px solid rgba(34, 197, 94, 0.4);
-      padding: 2px 8px;
-      border-radius: 12px;
+      border: 1px solid rgba(22, 163, 74, 0.3);
+      padding: 3px 10px;
+      border-radius: 9999px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.5px;
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(22, 163, 74, 0.8);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
     }
 
     .meeting-title {
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 15px;
     }
 
     .connection-pill {
       font-size: 12px;
       color: var(--text-muted);
-      background: #232834;
-      padding: 4px 10px;
-      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--glass-border-subtle);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      box-shadow: var(--glass-specular);
+      font-weight: 500;
     }
 
-    /* Main Container: Video stage + Side Chat */
-    main {
+    /* Main Container */
+    .main-stage {
       flex: 1;
       display: flex;
       position: relative;
       overflow: hidden;
+      z-index: 1;
     }
 
-    .video-stage {
+    /* Video Grid Area */
+    .video-grid-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .video-tiles-grid {
       flex: 1;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 16px;
-      padding: 20px;
-      background: #0f1115;
-      overflow-y: auto;
+      align-content: center;
     }
 
-    .video-tile {
-      background: var(--card-bg);
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
+    .video-card {
+      background: var(--glass-surface);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      position: relative;
       min-height: 200px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: var(--glass-shadow), var(--glass-specular);
+      overflow: hidden;
     }
 
-    .avatar {
+    .avatar-bubble {
       width: 72px;
       height: 72px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+      border: 2px solid white;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      font-weight: bold;
-      color: white;
-      margin-bottom: 8px;
+      font-size: 30px;
     }
 
-    .tile-name {
+    .participant-label {
       position: absolute;
       bottom: 12px;
-      left: 12px;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(4px);
+      left: 14px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
       padding: 4px 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 12px;
-      color: white;
+      font-weight: 600;
+      color: var(--text-main);
     }
 
-    /* Side Chat Panel */
+    .speaking-indicator {
+      position: absolute;
+      inset: 0;
+      border: 2.5px solid #38bdf8;
+      border-radius: 20px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .speaking .speaking-indicator {
+      opacity: 1;
+    }
+
+    /* Right Side Collapsible Chat Sidebar */
     .chat-panel {
       width: 360px;
-      background: #181b22;
-      border-left: 1px solid var(--border-color);
+      background: var(--glass-surface-dense);
+      backdrop-filter: blur(30px) saturate(200%);
+      -webkit-backdrop-filter: blur(30px) saturate(200%);
+      border-left: 1px solid var(--glass-border);
       display: flex;
       flex-direction: column;
-      transition: margin-right 0.25s ease;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s ease;
+      box-shadow: -8px 0 24px -6px rgba(15, 23, 42, 0.06);
+      z-index: 5;
     }
 
     .chat-panel.closed {
-      margin-right: -361px;
+      transform: translateX(100%);
+      width: 0;
+      overflow: hidden;
+      border-left: none;
     }
 
     .chat-header {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-color);
+      height: 52px;
+      padding: 0 16px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--glass-border-subtle);
+      font-weight: 700;
       font-size: 15px;
-      font-weight: 600;
     }
 
-    .close-btn {
+    .btn-close-chat {
       background: none;
       border: none;
+      font-size: 16px;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 18px;
-      line-height: 1;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-close-chat:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--text-main);
     }
 
     .chat-messages {
@@ -175,378 +263,352 @@
     }
 
     .message-item {
-      background: #232834;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      line-height: 1.4;
-      animation: fadeIn 0.2s ease-out;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      animation: message-in 0.2s ease-out;
     }
 
-    .message-item.from-remote {
-      border-left: 3px solid var(--accent);
-      background: #1e283c;
+    @keyframes message-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
     }
 
     .message-sender {
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
+      color: var(--text-main);
+      font-weight: 700;
     }
 
-    .message-sender .source-tag {
-      color: #38bdf8;
-      font-weight: 500;
+    .message-bubble {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+      word-break: break-word;
     }
 
-    .chat-input-container {
-      padding: 14px;
-      border-top: 1px solid var(--border-color);
-      background: #14171d;
+    .message-item.remote-phone .message-bubble {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-color: rgba(147, 197, 253, 0.8);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+    }
+
+    .remote-tag {
+      background: #2563eb;
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Chat Input Form */
+    .chat-input-area {
+      padding: 14px 16px;
+      border-top: 1px solid var(--glass-border-subtle);
       display: flex;
-      flex-direction: column;
       gap: 8px;
+      align-items: flex-end;
+      background: rgba(255, 255, 255, 0.6);
     }
 
     .chat-textarea {
-      width: 100%;
-      height: 72px;
-      background: #232834;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
+      flex: 1;
+      background: white;
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: 14px;
+      padding: 10px 12px;
       color: var(--text-main);
-      padding: 10px;
+      font-family: inherit;
       font-size: 14px;
+      line-height: 1.4;
       resize: none;
       outline: none;
-      font-family: inherit;
+      min-height: 42px;
+      max-height: 100px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
     .chat-textarea:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
 
-    .chat-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .input-hint {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .send-btn {
+    .chat-send-btn {
       background: var(--accent);
-      color: white;
       border: none;
-      padding: 8px 18px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 12px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s ease;
+      box-shadow: 0 4px 12px var(--accent-glow);
+      transition: transform 0.1s ease;
+      min-height: 42px;
     }
 
-    .send-btn:hover {
-      background: var(--accent-hover);
+    .chat-send-btn:active {
+      transform: scale(0.95);
     }
 
     /* Bottom Control Bar */
     footer {
       height: 64px;
-      background: #14171d;
-      border-top: 1px solid var(--border-color);
+      background: var(--glass-surface);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-top: 1px solid var(--glass-border);
+      box-shadow: 0 -8px 24px -4px rgba(15, 23, 42, 0.05), var(--glass-specular);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
       padding: 0 20px;
-      position: relative;
+      z-index: 10;
     }
 
     .control-btn {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--glass-border-subtle);
+      border-radius: 14px;
+      padding: 8px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 4px;
-      background: #232834;
-      border: 1px solid transparent;
       color: var(--text-main);
-      padding: 8px 16px;
-      border-radius: 8px;
       cursor: pointer;
-      font-size: 12px;
       min-width: 68px;
-      transition: all 0.15s ease;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04), var(--glass-specular);
+      transition: all 0.12s ease;
     }
 
-    .control-btn:hover {
-      background: #2e3545;
+    .control-btn:active {
+      background: white;
+      transform: scale(0.94);
     }
 
     .control-btn.active {
-      background: #1e3a8a;
-      border-color: #3b82f6;
-    }
-
-    .control-btn.muted {
+      background: #fef2f2;
+      border-color: #fca5a5;
       color: var(--danger);
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.3);
     }
 
-    .btn-icon {
-      font-size: 18px;
-    }
+    .control-icon { font-size: 16px; }
+    .control-label { font-size: 10px; font-weight: 600; color: var(--text-muted); }
 
-    /* Live Audit Box */
-    .audit-overlay {
-      position: absolute;
-      bottom: 74px;
-      left: 16px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-family: monospace;
-      font-size: 11px;
-      color: #38bdf8;
-      max-width: 320px;
-      pointer-events: none;
-      backdrop-filter: blur(6px);
-      z-index: 100;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+    .btn-leave {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: var(--danger);
     }
   </style>
 </head>
 <body data-app="demo-chat">
+  <!-- Fluid Mesh Background -->
+  <div class="ambient-bg"></div>
 
-  <!-- Header -->
+  <!-- Top Meeting Bar -->
   <header>
     <div class="meeting-info">
-      <span class="badge-live">● Live Meeting</span>
-      <span class="meeting-title">Design Sprint Call (LazyType Demo Room)</span>
+      <span class="badge-live"><span class="live-dot"></span> Live Meeting</span>
+      <span class="meeting-title">Design Sprint • Weekly Sync (Interactive Demo)</span>
     </div>
-    <div class="connection-pill" id="target-status">
-      LazyType Target: <strong style="color: #38bdf8;">Ready</strong>
+    <div class="connection-pill" id="bridge-status">
+      Extension Bridge: Ready
     </div>
   </header>
 
-  <!-- Video Stage + Chat -->
-  <main>
-    <div class="video-stage">
-      <div class="video-tile">
-        <div class="avatar">JS</div>
-        <div class="tile-name">Jane Smith (Host)</div>
-      </div>
-      <div class="video-tile">
-        <div class="avatar" style="background: linear-gradient(135deg, #10b981, #06b6d4);">YOU</div>
-        <div class="tile-name">You (MacBook Air)</div>
-      </div>
-      <div class="video-tile">
-        <div class="avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">AK</div>
-        <div class="tile-name">Alex Kumar</div>
+  <!-- Meeting Stage -->
+  <div class="main-stage" id="meeting-stage">
+    <!-- Video Grid -->
+    <div class="video-grid-area">
+      <div class="video-tiles-grid">
+        <div class="video-card speaking">
+          <div class="avatar-bubble">👩‍💼</div>
+          <div class="participant-label">Sarah Chen (Host)</div>
+          <div class="speaking-indicator"></div>
+        </div>
+
+        <div class="video-card">
+          <div class="avatar-bubble">👨‍💻</div>
+          <div class="participant-label">David Ross</div>
+          <div class="speaking-indicator"></div>
+        </div>
+
+        <div class="video-card">
+          <div class="avatar-bubble">🧑‍🎨</div>
+          <div class="participant-label">Elena Rostova</div>
+          <div class="speaking-indicator"></div>
+        </div>
+
+        <div class="video-card">
+          <div class="avatar-bubble">💻</div>
+          <div class="participant-label">You (praful’s MacBook)</div>
+          <div class="speaking-indicator"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Chat Sidebar Panel -->
-    <div class="chat-panel" id="chat-panel" aria-label="Meeting Chat">
+    <!-- Collapsible Chat Sidebar -->
+    <aside class="chat-panel" id="chat-panel">
       <div class="chat-header">
         <span>In-Call Messages</span>
-        <button class="close-btn" id="close-chat-btn" aria-label="Close Chat">✕</button>
+        <button class="btn-close-chat" id="btn-close-chat" title="Close chat panel">✕</button>
       </div>
 
-      <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+      <div class="chat-messages" id="chat-messages">
         <div class="message-item">
-          <div class="message-sender">
-            <span>Jane Smith</span>
-            <span>10:02 AM</span>
+          <div class="message-meta">
+            <span class="message-sender">Sarah Chen</span>
+            <span>10:41 AM</span>
           </div>
-          <div>Welcome everyone! Let's review the document roadmap.</div>
+          <div class="message-bubble">
+            Welcome everyone! Did everyone review the document from yesterday?
+          </div>
+        </div>
+
+        <div class="message-item">
+          <div class="message-meta">
+            <span class="message-sender">David Ross</span>
+            <span>10:42 AM</span>
+          </div>
+          <div class="message-bubble">
+            Yes, looks good from my side.
+          </div>
         </div>
       </div>
 
-      <div class="chat-input-container">
-        <!-- The target textarea: matches both id and resilient aria-label / placeholder selectors -->
+      <div class="chat-input-area">
         <textarea
           id="demo-chat-input"
           class="chat-textarea"
-          name="chatTextInput"
           placeholder="Send a message to everyone..."
-          aria-label="Send a message"
+          rows="1"
         ></textarea>
-
-        <div class="chat-actions">
-          <span class="input-hint">Press Enter to send</span>
-          <button
-            id="demo-send-btn"
-            class="send-btn"
-            aria-label="Send message"
-            title="Send message"
-          >
-            <span>Send</span>
-            <span>➔</span>
-          </button>
-        </div>
+        <button id="demo-send-btn" class="chat-send-btn">Send</button>
       </div>
-    </div>
-  </main>
+    </aside>
+  </div>
 
-  <!-- Bottom Toolbar -->
+  <!-- Bottom Control Bar -->
   <footer>
-    <button class="control-btn" id="mute-btn" aria-label="Mute or Unmute audio">
-      <span class="btn-icon">🎙️</span>
-      <span class="btn-label" id="mute-label">Mute</span>
+    <button class="control-btn" id="btn-mute" title="Toggle audio mute">
+      <span class="control-icon">🎙️</span>
+      <span class="control-label" id="mute-label">Mute</span>
     </button>
 
-    <button class="control-btn" id="camera-btn" aria-label="Start or Stop video">
-      <span class="btn-icon">📹</span>
-      <span class="btn-label" id="camera-label">Stop Video</span>
+    <button class="control-btn" id="btn-cam" title="Toggle camera">
+      <span class="control-icon">📹</span>
+      <span class="control-label" id="cam-label">Video</span>
     </button>
 
-    <!-- Chat Toggle Button: Primary target for OPEN_CHAT -->
-    <button
-      class="control-btn active"
-      id="chat-toggle-btn"
-      aria-label="Chat with everyone"
-      title="Toggle Chat panel"
-    >
-      <span class="btn-icon">💬</span>
-      <span class="btn-label">Chat</span>
+    <button class="control-btn" id="chat-toggle-btn" title="Toggle chat panel">
+      <span class="control-icon">💬</span>
+      <span class="control-label">Chat</span>
+    </button>
+
+    <button class="control-btn btn-leave" title="Leave demo call">
+      <span class="control-icon">📞</span>
+      <span class="control-label">Leave</span>
     </button>
   </footer>
 
-  <div class="audit-overlay" id="audit-log">
-    [Demo Target] Listening for Remote Companion commands...
-  </div>
-
   <script>
-    // State
-    let isMuted = false;
-    let isCameraOff = false;
-    let isChatOpen = true;
+    (function () {
+      const chatPanel = document.getElementById('chat-panel');
+      const chatToggleBtn = document.getElementById('chat-toggle-btn');
+      const btnCloseChat = document.getElementById('btn-close-chat');
+      const chatInput = document.getElementById('demo-chat-input');
+      const sendBtn = document.getElementById('demo-send-btn');
+      const messagesContainer = document.getElementById('chat-messages');
 
-    const chatPanel = document.getElementById('chat-panel');
-    const chatToggleBtn = document.getElementById('chat-toggle-btn');
-    const closeChatBtn = document.getElementById('close-chat-btn');
-    const chatInput = document.getElementById('demo-chat-input');
-    const sendBtn = document.getElementById('demo-send-btn');
-    const chatMessages = document.getElementById('chat-messages');
-    const muteBtn = document.getElementById('mute-btn');
-    const muteLabel = document.getElementById('mute-label');
-    const cameraBtn = document.getElementById('camera-btn');
-    const cameraLabel = document.getElementById('camera-label');
-    const auditLog = document.getElementById('audit-log');
+      const btnMute = document.getElementById('btn-mute');
+      const btnCam = document.getElementById('btn-cam');
+      const muteLabel = document.getElementById('mute-label');
+      const camLabel = document.getElementById('cam-label');
 
-    function logAudit(msg) {
-      const now = new Date().toLocaleTimeString();
-      auditLog.textContent = `[${now}] ${msg}`;
-    }
+      let isMuted = false;
+      let isCamOff = false;
 
-    // Toggle Chat Panel
-    function setChatOpen(open) {
-      isChatOpen = open;
-      if (open) {
-        chatPanel.classList.remove('closed');
-        chatToggleBtn.classList.add('active');
-        logAudit('Chat panel opened');
-      } else {
-        chatPanel.classList.add('closed');
-        chatToggleBtn.classList.remove('active');
-        logAudit('Chat panel closed');
+      // Toggle Chat
+      function toggleChat() {
+        chatPanel.classList.toggle('closed');
       }
-    }
 
-    chatToggleBtn.addEventListener('click', () => setChatOpen(!isChatOpen));
-    closeChatBtn.addEventListener('click', () => setChatOpen(false));
+      chatToggleBtn.addEventListener('click', toggleChat);
+      btnCloseChat.addEventListener('click', () => chatPanel.classList.add('closed'));
 
-    // Mute Controls
-    muteBtn.addEventListener('click', () => {
-      isMuted = !isMuted;
-      muteBtn.classList.toggle('muted', isMuted);
-      muteLabel.textContent = isMuted ? 'Unmute' : 'Mute';
-      logAudit(isMuted ? 'Microphone muted' : 'Microphone unmuted');
-    });
+      // Send Message handler
+      function handleSend() {
+        const text = chatInput.value.trim();
+        if (!text) return;
 
-    // Camera Controls
-    cameraBtn.addEventListener('click', () => {
-      isCameraOff = !isCameraOff;
-      cameraBtn.classList.toggle('muted', isCameraOff);
-      cameraLabel.textContent = isCameraOff ? 'Start Video' : 'Stop Video';
-      logAudit(isCameraOff ? 'Camera stopped' : 'Camera started');
-    });
+        const item = document.createElement('div');
+        item.className = 'message-item remote-phone';
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Send Message Logic
-    function sendMessage() {
-      const text = chatInput.value.trim();
-      if (!text) return;
+        item.innerHTML = `
+          <div class="message-meta">
+            <span class="message-sender">You (Remote Companion)</span>
+            <span class="remote-tag">Phone Remote</span>
+            <span>${now}</span>
+          </div>
+          <div class="message-bubble">${escapeHtml(text)}</div>
+        `;
 
-      const item = document.createElement('div');
-      item.className = 'message-item from-remote';
-      
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      item.innerHTML = `
-        <div class="message-sender">
-          <span>You</span>
-          <span class="source-tag">via Phone Remote • ${timeStr}</span>
-        </div>
-        <div>${escapeHtml(text)}</div>
-      `;
-      chatMessages.appendChild(item);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      chatInput.value = '';
-      logAudit(`Message delivered to chat: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`);
-    }
-
-    function escapeHtml(str) {
-      return str.replace(/[&<>'"]/g, tag => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#39;',
-        '"': '&quot;'
-      }[tag] || tag));
-    }
-
-    sendBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      sendMessage();
-    });
-
-    chatInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+        messagesContainer.appendChild(item);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        chatInput.value = '';
       }
-    });
 
-    chatInput.addEventListener('input', () => {
-      logAudit(`Input event detected (len: ${chatInput.value.length})`);
-    });
+      sendBtn.addEventListener('click', handleSend);
+      chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      });
 
-    // Signal to extension or tests that demo is ready
-    window.lazyTypeDemoReady = true;
-    window.lazyTypeGetState = () => ({
-      isChatOpen,
-      isMuted,
-      isCameraOff,
-      messageCount: chatMessages.children.length
-    });
+      // Mute / Cam Toggles
+      btnMute.addEventListener('click', () => {
+        isMuted = !isMuted;
+        btnMute.classList.toggle('active', isMuted);
+        muteLabel.textContent = isMuted ? 'Unmute' : 'Mute';
+      });
+
+      btnCam.addEventListener('click', () => {
+        isCamOff = !isCamOff;
+        btnCam.classList.toggle('active', isCamOff);
+        camLabel.textContent = isCamOff ? 'Start Video' : 'Video';
+      });
+
+      function escapeHtml(str) {
+        return str.replace(/[&<>'"]/g, tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag));
+      }
+    })();
   </script>
 </body>
 </html>

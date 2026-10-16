@@ -25,6 +25,11 @@ mkdir -p "$RESOURCES/phone" "$RESOURCES/demo"
 cp -R "$DIR/phone/public" "$RESOURCES/phone/"
 cp -R "$DIR/demo/demo.html" "$RESOURCES/demo/"
 
+# Copy icons
+if [ -f "$DIR/dist/AppIcon.icns" ]; then
+    cp "$DIR/dist/AppIcon.icns" "$RESOURCES/AppIcon.icns"
+fi
+
 # Create Info.plist with LSUIElement (Menu Bar Accessory)
 cat << 'PLIST' > "$CONTENTS/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -33,6 +38,8 @@ cat << 'PLIST' > "$CONTENTS/Info.plist"
 <dict>
     <key>CFBundleExecutable</key>
     <string>LazyType</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
     <string>com.lazytype.companion</string>
     <key>CFBundleName</key>
