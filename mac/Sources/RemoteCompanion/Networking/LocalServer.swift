@@ -18,6 +18,7 @@ public final class LocalServer: @unchecked Sendable {
     // Base directory for static files
     public var staticRootPath: String = ""
     public var demoHtmlPath: String = ""
+    public var onboardingHtmlPath: String = ""
     
     private init() {
         findDefaultPaths()
@@ -60,6 +61,27 @@ public final class LocalServer: @unchecked Sendable {
         for d in possibleDemos {
             if FileManager.default.fileExists(atPath: d) {
                 demoHtmlPath = d
+                break
+            }
+        }
+        
+        var possibleGuides: [String] = []
+        if let res = resPath {
+            possibleGuides.append(res + "/START_HERE_Onboarding_Guide.html")
+            possibleGuides.append(res + "/Onboarding_Guide.html")
+        }
+        possibleGuides.append(contentsOf: [
+            cwd + "/dist/START_HERE_Onboarding_Guide.html",
+            cwd + "/dist/Onboarding_Guide.html",
+            cwd + "/mac/Resources/Onboarding_Guide.html",
+            "/Volumes/ExternalSSD/Projects/lazytype/dist/START_HERE_Onboarding_Guide.html",
+            "/Volumes/ExternalSSD/Projects/lazytype/dist/Onboarding_Guide.html",
+            "/Volumes/ExternalSSD/Projects/lazytype/mac/Resources/Onboarding_Guide.html"
+        ])
+        
+        for g in possibleGuides {
+            if FileManager.default.fileExists(atPath: g) {
+                onboardingHtmlPath = g
                 break
             }
         }
@@ -213,6 +235,11 @@ public final class LocalServer: @unchecked Sendable {
             return
         }
         
+        if path == "/guide" || path == "/onboarding" || path == "/guide.html" || path == "/start" {
+            serveFile(fd: fd, filePath: onboardingHtmlPath, defaultContentType: "text/html; charset=utf-8")
+            return
+        }
+        
         if path == "/qr.png" {
             let pairUrl = PairingManager.shared.getPairingURL(port: Int(self.port))
             if let png = QRGenerator.generateQRCodePNG(from: pairUrl) {
@@ -282,6 +309,8 @@ public final class LocalServer: @unchecked Sendable {
         if path.hasSuffix(".json") { return "application/json" }
         if path.hasSuffix(".png") { return "image/png" }
         if path.hasSuffix(".svg") { return "image/svg+xml" }
+        if path.hasSuffix(".wasm") { return "application/wasm" }
+        if path.hasSuffix(".riv") { return "application/octet-stream" }
         return "application/octet-stream"
     }
     
@@ -434,6 +463,15 @@ public final class LocalServer: @unchecked Sendable {
                 client.sendJSON(resp)
             }
             
+        case "LIVE_INPUT":
+            guard client.isAuthorized else { return }
+            let text = msg.text ?? ""
+            Task {
+                let adapter = AdapterRegistry.shared.resolveAdapter(targetHint: msg.target)
+                let frontApp = AppDetector.getFrontmostApp()
+                _ = await adapter.insertText(text: text, app: frontApp)
+            }
+
         case "SEND_MESSAGE":
             guard client.isAuthorized else {
                 sendUnauthorized(client: client, reqId: msg.requestId)
@@ -443,7 +481,17 @@ public final class LocalServer: @unchecked Sendable {
             Task {
                 let adapter = AdapterRegistry.shared.resolveAdapter(targetHint: msg.target)
                 let frontApp = AppDetector.getFrontmostApp()
-                let result = await adapter.sendMessage(text: text, app: frontApp)
+                var result = await adapter.sendMessage(text: text, app: frontApp)
+                
+                // Only fall back to generic keyboard if target was explicitly specified as "generic"
+                if case .failure = result, msg.target == "generic" {
+                    AppLogger.shared.info("Explicit generic target requested, attempting generic keyboard fallback")
+                    let fallbackResult = await AdapterRegistry.shared.genericAdapter.sendMessage(text: text, app: frontApp)
+                    if case .success = fallbackResult {
+                        result = fallbackResult
+                    }
+                }
+
                 switch result {
                 case .success(let act):
                     client.sendJSON(CommandResultResponse(
@@ -474,7 +522,15 @@ public final class LocalServer: @unchecked Sendable {
             Task {
                 let adapter = AdapterRegistry.shared.resolveAdapter(targetHint: msg.target)
                 let frontApp = AppDetector.getFrontmostApp()
-                let result = await adapter.insertText(text: text, app: frontApp)
+                var result = await adapter.insertText(text: text, app: frontApp)
+                
+                if case .failure = result, (msg.target == nil || msg.target == "auto"), adapter.adapterId != "generic" {
+                    let fallbackResult = await AdapterRegistry.shared.genericAdapter.insertText(text: text, app: frontApp)
+                    if case .success = fallbackResult {
+                        result = fallbackResult
+                    }
+                }
+
                 switch result {
                 case .success(let act):
                     client.sendJSON(CommandResultResponse(requestId: msg.requestId, success: true, target: act.adapterId, action: "INSERT_TEXT", message: act.message))

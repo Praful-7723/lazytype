@@ -3,6 +3,11 @@
  */
 
 (function () {
+  if (window.__LAZYTYPE_CONTENT_SCRIPT_INITIALIZED__) {
+    return;
+  }
+  window.__LAZYTYPE_CONTENT_SCRIPT_INITIALIZED__ = true;
+
   const ADAPTERS = [
     window.DemoChatAdapter,
     window.GoogleMeetAdapter,
@@ -33,6 +38,11 @@
 
       try {
         switch (request.action) {
+          case 'PING': {
+            sendResponse({ success: true, pong: true, url: window.location.href });
+            break;
+          }
+
           case 'GET_STATE': {
             const state = adapter.getState();
             sendResponse({ success: true, requestId, ...state, url: window.location.href });
@@ -45,7 +55,8 @@
             break;
           }
 
-          case 'INSERT_TEXT': {
+          case 'INSERT_TEXT':
+          case 'LIVE_INPUT': {
             const result = await adapter.insertText(request.text || '');
             sendResponse({ success: true, requestId, adapter: adapter.id, ...result });
             break;
@@ -99,16 +110,24 @@
     return true; // Keep message channel open for async response
   });
 
-  // Report initial state on page load
-  try {
-    const adapter = getActiveAdapter();
-    const state = adapter.getState();
-    chrome.runtime.sendMessage({
-      type: 'EXT_TAB_STATE',
-      url: window.location.href,
-      ...state
-    }).catch(() => {});
-  } catch (e) {
-    // Service worker might be sleeping initially
+  function notifyStateChange() {
+    try {
+      const adapter = getActiveAdapter();
+      const state = adapter.getState();
+      chrome.runtime.sendMessage({
+        type: 'EXT_TAB_STATE',
+        url: window.location.href,
+        ...state
+      }).catch(() => {});
+    } catch (e) {
+      // Service worker might be sleeping initially
+    }
   }
+
+  // Report initial state on page load
+  notifyStateChange();
+
+  // Listen for user focus changes across the DOM
+  document.addEventListener('focusin', () => notifyStateChange());
+  document.addEventListener('focusout', () => setTimeout(notifyStateChange, 120));
 })();

@@ -23,14 +23,15 @@ public final class BrowserBridgeAdapter: ApplicationAdapter, @unchecked Sendable
         let isChatOpen = lastReportedState?.chatOpen ?? false
         let isChatAvailable = lastReportedState?.chatAvailable ?? isMeeting
         let currentSubAdapter = lastReportedState?.adapter ?? "Browser Tab"
+        let targetName = lastReportedState?.targetName ?? (isMeeting ? "Video Call Chat" : "Web Input")
         
         return AdapterState(
             adapterId: currentSubAdapter,
-            activeApplication: isExtensionConnected ? "Chrome (\(currentSubAdapter))" : "Browser (Extension Disconnected)",
+            activeApplication: isExtensionConnected ? targetName : "Browser (Extension Disconnected)",
             meetingDetected: isMeeting,
-            chatAvailable: isChatAvailable,
-            chatOpen: isChatOpen,
-            canSendMessage: isExtensionConnected,
+            chatAvailable: isExtensionConnected && isChatAvailable,
+            chatOpen: isExtensionConnected && isChatOpen,
+            canSendMessage: isExtensionConnected && isChatAvailable,
             canMute: lastReportedState?.canMute ?? false,
             canControlCamera: lastReportedState?.canControlCamera ?? false
         )

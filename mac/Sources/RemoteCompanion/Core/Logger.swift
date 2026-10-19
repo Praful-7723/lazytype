@@ -24,6 +24,10 @@ public final class AppLogger: @unchecked Sendable {
         print("[\(time)] [\(tag)] \(message)")
     }
     
+    public func info(_ message: String) {
+        log(message, tag: "INFO")
+    }
+    
     public func debug(_ message: String) {
         log(message, tag: "DEBUG")
     }

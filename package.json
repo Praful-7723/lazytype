@@ -4,6 +4,8 @@
   "description": "Local Android-to-Mac companion controller for hands-free video call chat and typing.",
   "scripts": {
     "build:mac": "bash scripts/build-mac.sh",
+    "package:mac": "bash scripts/package-app.sh",
+    "build:dmg": "bash scripts/create-dmg.sh",
     "start:mac": "bash scripts/run-mac.sh",
     "generate:icons": "python3 scripts/generate-icons.py",
     "test": "node scripts/test-e2e.js"

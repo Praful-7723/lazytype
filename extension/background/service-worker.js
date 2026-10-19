@@ -7,18 +7,91 @@ const DEFAULT_SERVER_URL = 'ws://127.0.0.1:9123/ws/extension';
 let socket = null;
 let isConnecting = false;
 
+const CONTENT_SCRIPT_FILES = [
+  'content/dom-injector.js',
+  'adapters/demo-chat.js',
+  'adapters/google-meet.js',
+  'adapters/zoom-web.js',
+  'adapters/teams-web.js',
+  'adapters/slack-web.js',
+  'adapters/generic-web.js',
+  'content/content-script.js'
+];
+
+/**
+ * Ensure content script is actively running in the given tab before sending commands.
+ * Injects dynamically on-demand if the tab was opened before extension was loaded.
+ */
+async function ensureTabReady(tabId) {
+  if (!tabId) return false;
+  try {
+    const res = await chrome.tabs.sendMessage(tabId, { action: 'PING' });
+    if (res && res.pong) {
+      return true;
+    }
+  } catch (err) {
+    // Content script not yet attached
+  }
+
+  try {
+    console.log(`[LazyType SW] Proactively injecting content scripts into tab ${tabId}...`);
+    await chrome.scripting.executeScript({
+      target: { tabId, allFrames: true },
+      files: CONTENT_SCRIPT_FILES
+    });
+    // Brief settle time
+    await new Promise(r => setTimeout(r, 60));
+    return true;
+  } catch (injectErr) {
+    console.warn(`[LazyType SW] Failed to inject scripts into tab ${tabId}:`, injectErr);
+    return false;
+  }
+}
+
 // Initialize on extension startup / install
 chrome.runtime.onInstalled.addListener(async () => {
   console.log('[LazyType SW] Extension installed');
   await chrome.storage.local.set({ serverUrl: DEFAULT_SERVER_URL, connected: false });
   setupAlarm();
   connectWebSocket();
+
+  // Proactively inject into all open web tabs
+  try {
+    const tabs = await chrome.tabs.query({});
+    for (const tab of tabs) {
+      if (tab.id && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('chrome-extension://')) {
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id, allFrames: true },
+          files: CONTENT_SCRIPT_FILES
+        }).catch(() => {});
+      }
+    }
+  } catch (e) {
+    console.warn('[LazyType SW] Tab bootstrap injection error:', e);
+  }
 });
 
 chrome.runtime.onStartup.addListener(() => {
   console.log('[LazyType SW] Extension started');
   setupAlarm();
   connectWebSocket();
+});
+
+// React immediately to tab switching, URL changes, and window focus
+chrome.tabs.onActivated.addListener(() => {
+  reportActiveTabState();
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === 'complete' || changeInfo.url) {
+    reportActiveTabState();
+  }
+});
+
+chrome.windows.onFocusChanged.addListener((windowId) => {
+  if (windowId !== chrome.windows.WINDOW_ID_NONE) {
+    reportActiveTabState();
+  }
 });
 
 // Alarm for periodic keep-alive and reconnection checks
@@ -117,8 +190,42 @@ async function handleMacCommand(cmd) {
     return;
   }
 
+  // Ensure content script is ready in targetTab
+  await ensureTabReady(targetTab.id);
+
   try {
-    const response = await chrome.tabs.sendMessage(targetTab.id, cmd);
+    let response;
+    try {
+      response = await chrome.tabs.sendMessage(targetTab.id, cmd);
+    } catch (sendErr) {
+      if (sendErr.message && sendErr.message.includes('Receiving end does not exist')) {
+        console.log('[LazyType SW] Retrying after fresh injection...');
+        await ensureTabReady(targetTab.id);
+        response = await chrome.tabs.sendMessage(targetTab.id, cmd);
+      } else {
+        throw sendErr;
+      }
+    }
+
+    // If main frame didn't find chat input, check other frames in the tab!
+    if (response && !response.success && response.errorCode === 'CHAT_INPUT_NOT_FOUND') {
+      try {
+        const frames = await chrome.webNavigation.getAllFrames({ tabId: targetTab.id });
+        if (frames && frames.length > 1) {
+          for (const frame of frames) {
+            if (frame.frameId === 0) continue;
+            try {
+              const frameResponse = await chrome.tabs.sendMessage(targetTab.id, cmd, { frameId: frame.frameId });
+              if (frameResponse && frameResponse.success) {
+                response = frameResponse;
+                break;
+              }
+            } catch (fe) {}
+          }
+        }
+      } catch (navErr) {}
+    }
+
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({
         type: 'COMMAND_RESULT',
@@ -186,6 +293,7 @@ async function reportActiveTabState() {
   }
 
   try {
+    await ensureTabReady(tab.id);
     const state = await chrome.tabs.sendMessage(tab.id, { action: 'GET_STATE' });
     if (state && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({

@@ -3,60 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#f8fafc">
+  <meta name="theme-color" content="#121520">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>LazyType Remote</title>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <title>LazyType Remote • Mac Companion</title>
+
+  <!-- High-Precision Modern Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <!-- Ambient Fluid Mesh Background Blobs -->
-  <div class="ambient-mesh">
-    <div class="mesh-blob blob-1"></div>
-    <div class="mesh-blob blob-2"></div>
-    <div class="mesh-blob blob-3"></div>
+  <!-- Dreamy Atmospheric Sunset Cloudscape (Inspired by Reference Image 2) -->
+  <div class="sky-canvas-backdrop">
+    <div class="sky-gradient-base"></div>
+    <div class="cloud-mass cloud-mass-1"></div>
+    <div class="cloud-mass cloud-mass-2"></div>
+    <div class="cloud-mass cloud-mass-3"></div>
+    <div class="cloud-mass cloud-mass-4"></div>
+    <div class="dusk-light-shimmer"></div>
+    <div class="vignette-overlay"></div>
   </div>
 
   <div id="app" class="app-root">
 
-    <!-- Screen 1: Instant Pairing / Connecting State -->
+    <!-- SCREEN 1: Optical Glass Pairing Stage -->
     <section id="screen-pairing" class="screen active">
       <div class="pairing-container">
-        <!-- Canvas Logo -->
+        
+        <!-- Brand Hero with Optical Liquid Glass Emblem -->
         <div class="brand-hero">
-          <canvas id="canvas-logo" width="160" height="160" class="canvas-brand-logo"></canvas>
+          <div class="brand-glass-badge">
+            <img src="/logo.svg" alt="LazyType Crystal Logo" width="76" height="76" class="brand-logo-img">
+          </div>
           <h1 class="brand-title">LazyType</h1>
-          <p class="brand-subtitle">Mac Meeting Chat Companion</p>
+          <p class="brand-tagline">Optical Glass Mac Companion</p>
         </div>
 
-        <div class="glass-card pairing-card">
-          <!-- Automatic Connecting HUD -->
+        <!-- Floating Optical Squircle Glass Card -->
+        <div class="glass-squircle-card pairing-card">
           <div id="connecting-state" class="connecting-hud">
-            <div class="liquid-pulse-ring">
-              <div class="liquid-ring ring-1"></div>
-              <div class="liquid-ring ring-2"></div>
-              <div class="liquid-center-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            
+            <!-- Rive Interactive Canvas (Hidden by default unless .riv loads) -->
+            <div id="rive-container" class="rive-animation-frame hidden">
+              <canvas id="rive-canvas" width="280" height="180"></canvas>
+            </div>
+
+            <!-- Optical Glass Radar Disc -->
+            <div id="radar-fallback" class="radar-glass-disc">
+              <div class="radar-sweep"></div>
+              <div class="radar-center-optic">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="3" ry="3"></rect>
                   <line x1="8" y1="21" x2="16" y2="21"></line>
                   <line x1="12" y1="17" x2="12" y2="21"></line>
                 </svg>
               </div>
             </div>
+
             <h2 id="connect-title" class="connect-title">Connecting to Mac...</h2>
-            <p id="connect-status" class="card-desc">Establishing secure companion session</p>
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill"></div>
+            <p id="connect-status" class="card-desc">Zero-click auto-discovery on local Wi-Fi</p>
+            
+            <div class="glass-progress-track">
+              <div class="glass-progress-thumb"></div>
             </div>
           </div>
 
-          <!-- Fallback Manual Settings (Hidden by default, auto-discovers) -->
+          <!-- Tuckable Manual Settings in Inner Glass Chamber -->
           <div class="manual-settings-wrapper">
             <button id="btn-toggle-manual" class="btn-text-glass" type="button">
-              ⚙️ Manual Connection Details
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <span>Manual Network Settings</span>
             </button>
+            
             <div id="manual-settings-form" class="manual-settings-form hidden">
               <div class="glass-input-group">
                 <label for="input-host">Mac IP / Host</label>
@@ -74,71 +102,110 @@
                 </div>
               </div>
 
-              <button id="btn-manual-connect" class="btn-primary-glass btn-large">
-                Connect Now
+              <button id="btn-manual-connect" class="btn-glass-primary">
+                Connect Immediately
               </button>
             </div>
           </div>
         </div>
+
       </div>
     </section>
 
-    <!-- Screen 2: Ultra-Clean One-Handed Controller (Message + SEND) -->
+    <!-- SCREEN 2: Pure Physical Liquid Glass Controller -->
     <section id="screen-controller" class="screen hidden">
-      <!-- Liquid Glass Top Header Pill -->
-      <header class="glass-header">
-        <div class="status-pill-glass">
-          <span class="status-dot connected" id="status-dot"></span>
-          <span class="device-name" id="mac-name">MacBook Air</span>
-          <span class="status-sub" id="connection-state">• Ready ✓</span>
+      
+      <!-- Floating Liquid Glass Capsule Nav (Modeled after Reference Image 1) -->
+      <header class="glass-capsule-nav">
+        <div class="nav-left">
+          <div class="glass-status-capsule">
+            <img src="/logo.svg" width="22" height="22" class="capsule-mascot-img" alt="Mascot">
+            <span class="status-jewel" id="status-dot"></span>
+            <div class="status-meta">
+              <span class="device-name" id="mac-name">MacBook</span>
+              <span class="device-target" id="connection-state">• Connected</span>
+            </div>
+          </div>
+          <div class="glass-latency-badge" id="ping-badge">12ms</div>
         </div>
 
-        <button id="btn-disconnect" class="btn-icon-glass" title="Connection Settings" aria-label="Settings">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-        </button>
+        <div class="nav-right">
+          <!-- Glass Circle Button: Haptics -->
+          <button id="btn-toggle-haptic" class="glass-circle-btn haptic-active" title="Toggle Tactile Haptics" aria-label="Toggle Haptics">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="3"></rect>
+              <line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"></line>
+            </svg>
+          </button>
+          
+          <!-- Glass Circle Button: Disconnect / Settings -->
+          <button id="btn-disconnect" class="glass-circle-btn" title="Connection Settings" aria-label="Settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+        </div>
       </header>
 
-      <!-- Liquid Glass Hero Message Card -->
+      <!-- Main Stage -->
       <main class="hero-controller-stage">
-        <!-- Quick Canned Replies Scroll Strip -->
-        <div class="quick-replies-glass-strip">
-          <div class="quick-replies-scroll">
-            <button class="liquid-chip" data-text="Can you send me that document?">📄 Send document</button>
-            <button class="liquid-chip" data-text="Can you hear me?">🔊 Can you hear me?</button>
-            <button class="liquid-chip" data-text="Give me 2 minutes, BRB">⏱️ BRB (2 mins)</button>
-            <button class="liquid-chip" data-text="I agree, +1">👍 Agreed / +1</button>
-            <button class="liquid-chip" data-text="Thanks everyone!">🙏 Thanks!</button>
-            <button class="liquid-chip" data-text="I'm on mute, speaking now">🎙️ Speaking now</button>
-            <button class="liquid-chip" data-text="Please check your screen share">🖥️ Check screen</button>
+
+        <!-- Artistic Cosmic Hero Banner (Artistic Stippled Clouds & Starburst) -->
+        <div class="artistic-hero-banner">
+          <img src="/assets/cosmic_clouds_banner.png" class="artistic-banner-bg" alt="Cosmic Atmosphere">
+          <div class="artistic-banner-overlay"></div>
+          <div class="artistic-banner-content">
+            <div class="artistic-target-row">
+              <div class="artistic-mac-target">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="3" ry="3"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                <span id="banner-target-app">Mac Companion</span>
+              </div>
+              <div class="artistic-live-pill">
+                <span class="artistic-emerald-dot"></span>
+                <span>ACTIVE</span>
+              </div>
+            </div>
+            <div class="artistic-hint-card">
+              <span class="hint-dot"></span>
+              <span id="banner-hint-text">Focus any chat or search field on Mac to type</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- REAL-TIME CHAT TARGET STATUS (Only visible as alert when no target active) -->
+        <div id="target-feedback-card" class="target-status-card no-chat hidden">
+          <div class="target-status-icon">
+            <span class="target-status-pulse" id="target-pulse-dot"></span>
+          </div>
+          <div class="target-status-info">
+            <div class="target-status-title" id="target-status-title">No Active Input Field</div>
+            <div class="target-status-sub" id="target-status-sub">Click any search bar, chat, or text box on your Mac to type</div>
           </div>
         </div>
 
-        <!-- Glass Message Box -->
-        <div class="glass-card message-stage-card">
-          <div class="textarea-glass-wrapper">
-            <textarea
-              id="message-input"
-              class="message-textarea-glass"
-              placeholder="Type message for meeting..."
-              enterkeyhint="send"
-              autocapitalize="sentences"
-              rows="4"
-            ></textarea>
-
-            <!-- Floating In-Text Controls -->
-            <div class="floating-input-actions">
-              <button id="btn-voice-dictate" class="action-btn-glass voice-btn" title="Dictate with voice" aria-label="Voice input">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+        <!-- Floating Optical Squircle Glass Card for Live Typing -->
+        <div class="glass-squircle-card message-stage-card" id="message-card-frame">
+          
+          <!-- Card Header with Actions -->
+          <div class="composer-header-row">
+            <div class="composer-header-title">
+              <span class="live-pulse-dot"></span>
+              <span id="composer-target-title">LIVE KEYSTROKES TO MAC</span>
+            </div>
+            <div class="composer-header-actions">
+              <button id="btn-voice-dictate" class="glass-circle-btn voice-btn" title="Voice dictation" aria-label="Voice input">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                   <line x1="12" y1="19" x2="12" y2="23"></line>
-                  <line x1="8" y1="23" x2="16" y2="23"></line>
                 </svg>
               </button>
-              <button id="btn-clear-text" class="action-btn-glass clear-btn hidden" title="Clear text" aria-label="Clear">
+              <button id="btn-clear-text" class="glass-circle-btn clear-btn hidden" title="Clear text" aria-label="Clear">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -147,81 +214,80 @@
             </div>
           </div>
 
-          <!-- Ultra-Premium Hero SEND Button -->
-          <button id="btn-send-message" class="btn-hero-send">
-            <span class="send-glow-overlay"></span>
-            <span class="send-label">SEND MESSAGE</span>
-            <span class="send-icon-wrap">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Nested Glass Well for Text Input -->
+          <div class="textarea-glass-nested">
+            <textarea
+              id="message-input"
+              class="message-textarea-glass"
+              placeholder="Type here... letters appear live on your Mac screen"
+              enterkeyhint="send"
+              autocapitalize="sentences"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <!-- Metadata & Status Mode -->
+          <div class="composer-meta-row">
+            <span class="meta-mode-badge" id="live-typing-status">Live Keystrokes Active</span>
+          </div>
+        </div>
+
+        <!-- Working Quick Reply Chips (Only Real, Functional Phrases) -->
+        <div class="functional-chips-section">
+          <div class="chips-section-label">QUICK REPLIES</div>
+          <div class="quick-replies-scroll" id="chips-container">
+            <button class="liquid-chip" data-text="Can you hear me?">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <span>Can you hear me?</span>
+            </button>
+            <button class="liquid-chip" data-text="Yes, sounds good!">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Yes, sounds good!</span>
+            </button>
+            <button class="liquid-chip" data-text="Give me 2 minutes, BRB">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>BRB (2 mins)</span>
+            </button>
+            <button class="liquid-chip" data-text="Thanks everyone!">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span>Thanks everyone!</span>
+            </button>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- FIXED BOTTOM SEND / ENTER HERO BUTTON (Ergonomic Thumb Reach Zone) -->
+      <footer class="bottom-send-dock">
+        <div class="bottom-dock-glass-card">
+          <img src="/assets/cosmic_clouds_banner.png" class="dock-bg-image" alt="Cosmic Atmosphere">
+          <div class="dock-bg-overlay"></div>
+          <button id="btn-send-message" class="btn-glass-bottom-hero" disabled>
+            <span class="btn-glass-specular-sheen"></span>
+            <span class="btn-label" id="send-btn-label">FOCUS TEXT FIELD ON MAC</span>
+            <span class="btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
             </span>
           </button>
         </div>
+      </footer>
 
-        <!-- Optional Collapsible Auxiliary Controls -->
-        <div class="aux-drawer-wrap">
-          <button id="btn-toggle-aux" class="btn-drawer-pill" type="button">
-            <span>Meeting Tools & Keys</span>
-            <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
-
-          <div id="aux-controls-drawer" class="aux-controls-drawer hidden">
-            <div class="quick-tools-grid">
-              <button id="btn-mute" class="tool-tile-glass" title="Toggle audio mute">
-                <span class="tile-icon">🎙️</span>
-                <span class="tile-label" id="quick-mute-label">Mute</span>
-              </button>
-
-              <button id="btn-camera" class="tool-tile-glass" title="Toggle camera">
-                <span class="tile-icon">📹</span>
-                <span class="tile-label" id="quick-cam-label">Camera</span>
-              </button>
-
-              <button id="btn-open-chat" class="tool-tile-glass" title="Open meeting chat panel">
-                <span class="tile-icon">💬</span>
-                <span class="tile-label">Open Chat</span>
-              </button>
-
-              <button id="btn-paste" class="tool-tile-glass" title="Paste clipboard text to Mac">
-                <span class="tile-icon">📋</span>
-                <span class="tile-label">Paste</span>
-              </button>
-            </div>
-
-            <div class="keypad-glass-row">
-              <button class="key-pill-glass" data-key="Enter">↵ Enter</button>
-              <button class="key-pill-glass" data-key="Backspace">⌫ Back</button>
-              <button class="key-pill-glass" data-key="Tab">Tab</button>
-              <button class="key-pill-glass" data-key="Escape">Esc</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Sent History -->
-        <div class="history-glass-card">
-          <div class="history-head">
-            <span class="history-title-label">Recent Messages</span>
-            <button id="btn-clear-history" class="btn-text-tiny">Clear</button>
-          </div>
-          <div id="history-list" class="history-chips-list">
-            <div class="history-empty">No recent messages</div>
-          </div>
-        </div>
-      </main>
     </section>
 
-    <!-- Floating Specular Toast -->
-    <div id="toast" class="toast-glass hidden">
-      <span class="toast-bullet">•</span>
-      <span id="toast-message">Message sent ✓</span>
+    <!-- Native Glass Notification Toast -->
+    <div id="toast" class="liquid-toast hidden">
+      <div class="toast-glass-capsule">
+        <span class="toast-optic-jewel"></span>
+        <span id="toast-message" class="toast-text">Connected</span>
+      </div>
     </div>
 
   </div>
 
+  <script src="/rive.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

@@ -4,283 +4,467 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LazyType Video Call - Interactive Demo Target</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /* ==========================================================================
+       OPTICAL LIQUID GLASS DESIGN SYSTEM - ZERO NEON / PURE OPTICAL REFRACTION
+       Modeled after Reference Image 1 (Liquid Glass Capsule) & Image 2 (Squircle Glass Card)
+       ========================================================================== */
     :root {
-      --bg-porcelain: #f8fafc;
-      --glass-surface: rgba(255, 255, 255, 0.75);
-      --glass-surface-dense: rgba(255, 255, 255, 0.9);
-      --glass-border: rgba(255, 255, 255, 0.85);
-      --glass-border-subtle: rgba(226, 232, 240, 0.8);
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --accent: #2563eb;
-      --accent-glow: rgba(37, 99, 235, 0.35);
-      --danger: #ef4444;
-      --success: #16a34a;
-      --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
-      --glass-specular: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95);
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+      /* Material Gradients & Optical Fills */
+      --glass-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0.20) 100%);
+      --glass-surface-dense: linear-gradient(135deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.32) 100%);
+      --glass-surface-subtle: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.12) 100%);
+      --glass-well: linear-gradient(180deg, rgba(245, 240, 248, 0.55) 0%, rgba(235, 228, 242, 0.40) 100%);
+
+      /* Smoked Glass Materials (Reference Image 2) */
+      --smoked-glass: linear-gradient(180deg, rgba(32, 28, 38, 0.88) 0%, rgba(20, 16, 26, 0.94) 100%);
+      --smoked-glass-hover: linear-gradient(180deg, rgba(45, 40, 54, 0.92) 0%, rgba(28, 24, 36, 0.96) 100%);
+
+      /* Refractive Borders & Specular Razor Edges */
+      --glass-border: rgba(255, 255, 255, 0.65);
+      --glass-border-subtle: rgba(255, 255, 255, 0.38);
+      --specular-rim: inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05);
+      --specular-rim-smoked: inset 0 1.2px 1.5px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.4);
+
+      /* Natural Ambient Shadows */
+      --shadow-liquid-lg: 
+        0 24px 48px -12px rgba(32, 22, 45, 0.18),
+        0 12px 24px -8px rgba(32, 22, 45, 0.10),
+        0 2px 6px rgba(0, 0, 0, 0.04);
+      --shadow-liquid-sm:
+        0 8px 20px -4px rgba(32, 22, 45, 0.10),
+        0 2px 6px rgba(0, 0, 0, 0.03);
+
+      /* Typography Colors */
+      --text-main: #181520;
+      --text-secondary: #585066;
+      --text-muted: #827894;
+      --text-inverse: #ffffff;
+
+      /* Organic Emerald / Ruby Status Accents */
+      --emerald-accent: #059669;
+      --emerald-soft: rgba(5, 150, 105, 0.14);
+      --ruby-accent: #dc2626;
+      --ruby-soft: rgba(220, 38, 38, 0.14);
+
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-      background: var(--bg-porcelain);
+      font-family: var(--font-sans);
       color: var(--text-main);
       height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
+      background: #e9e4f0;
     }
 
-    /* Ambient Mesh Blobs */
-    .ambient-bg {
+    /* ==========================================================================
+       WARM SUNSET CLOUDSCAPE CANVAS BACKDROP (Inspired by Reference Image 2)
+       ========================================================================== */
+    .sky-canvas-backdrop {
       position: fixed;
       inset: 0;
-      pointer-events: none;
       z-index: 0;
+      pointer-events: none;
       background: 
-        radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.9) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(243, 232, 255, 0.8) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(254, 243, 199, 0.5) 0px, transparent 50%),
-        linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        radial-gradient(ellipse at 50% 120%, #ff8c69 0%, transparent 65%),
+        radial-gradient(ellipse at 85% 75%, #ffa07a 0%, transparent 55%),
+        radial-gradient(circle at 15% 45%, #f9b29c 0%, transparent 50%),
+        radial-gradient(circle at 75% 25%, #c8b6ff 0%, transparent 60%),
+        radial-gradient(circle at 35% 15%, #b8c0ff 0%, transparent 55%),
+        linear-gradient(180deg, #9bb1ff 0%, #b8c0ff 32%, #e2cbf7 60%, #ffd1b3 85%, #ffb499 100%);
     }
 
-    /* Top Meeting Bar */
+    .cloud-mass {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(55px);
+      opacity: 0.72;
+      animation: floatCloud 24s ease-in-out infinite alternate;
+    }
+    .cloud-1 {
+      width: 650px;
+      height: 380px;
+      background: linear-gradient(135deg, rgba(255, 235, 220, 0.8), rgba(255, 160, 122, 0.65));
+      bottom: -60px;
+      left: 10%;
+    }
+    .cloud-2 {
+      width: 720px;
+      height: 420px;
+      background: linear-gradient(135deg, rgba(230, 210, 255, 0.75), rgba(255, 182, 193, 0.6));
+      bottom: 60px;
+      right: -80px;
+      animation-duration: 32s;
+    }
+    .cloud-3 {
+      width: 480px;
+      height: 300px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(240, 220, 255, 0.5));
+      top: 10%;
+      left: 20%;
+      animation-duration: 28s;
+    }
+
+    @keyframes floatCloud {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, -20px) scale(1.05); }
+    }
+
+    /* ==========================================================================
+       OPTICAL GLASS HEADER (Floating Liquid Capsule)
+       ========================================================================== */
     header {
-      height: 52px;
+      position: relative;
+      isolation: isolate;
+      z-index: 20;
+      height: 64px;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-capsule {
+      width: 100%;
+      height: 100%;
       background: var(--glass-surface);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border-bottom: 1px solid var(--glass-border);
-      box-shadow: var(--glass-shadow), var(--glass-specular);
+      backdrop-filter: blur(28px) saturate(180%) contrast(104%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%) contrast(104%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-liquid-sm), var(--specular-rim);
+      border-radius: 9999px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      font-size: 14px;
-      z-index: 10;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-capsule::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+      pointer-events: none;
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
     }
 
     .meeting-info {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .badge-live {
-      background: rgba(22, 163, 74, 0.12);
-      color: var(--success);
-      border: 1px solid rgba(22, 163, 74, 0.3);
-      padding: 3px 10px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--specular-rim);
+      color: var(--text-main);
+      padding: 5px 14px;
       border-radius: 9999px;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+      letter-spacing: 0.3px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .live-dot {
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 8px rgba(22, 163, 74, 0.8);
-      animation: pulse 1.5s infinite;
+      background: var(--emerald-accent);
+      box-shadow: 0 0 8px rgba(5, 150, 105, 0.6);
+      animation: gentlePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
-    @keyframes pulse {
+    @keyframes gentlePulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
+      50% { opacity: 0.45; transform: scale(0.85); }
     }
 
     .meeting-title {
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14.5px;
+      letter-spacing: -0.2px;
+      color: var(--text-main);
     }
 
     .connection-pill {
-      font-size: 12px;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid var(--glass-border-subtle);
-      padding: 5px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--specular-rim);
+      padding: 5px 14px;
       border-radius: 9999px;
-      box-shadow: var(--glass-specular);
-      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    /* Main Container */
+    .bridge-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald-accent);
+      box-shadow: 0 0 6px rgba(5, 150, 105, 0.5);
+    }
+
+    /* ==========================================================================
+       MAIN STAGE & SQUIRCLE PARTICIPANT TILES
+       ========================================================================== */
     .main-stage {
       flex: 1;
       display: flex;
       position: relative;
       overflow: hidden;
-      z-index: 1;
+      z-index: 10;
+      padding: 8px 24px 18px 24px;
+      gap: 20px;
     }
 
-    /* Video Grid Area */
     .video-grid-area {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 16px;
-      gap: 16px;
       overflow-y: auto;
     }
 
     .video-tiles-grid {
       flex: 1;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
       gap: 16px;
-      align-content: center;
     }
 
     .video-card {
-      background: var(--glass-surface);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
       position: relative;
+      isolation: isolate;
+      background: var(--glass-surface);
+      backdrop-filter: blur(28px) saturate(180%) contrast(104%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%) contrast(104%);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      box-shadow: var(--shadow-liquid-lg), var(--specular-rim);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 200px;
-      box-shadow: var(--glass-shadow), var(--glass-specular);
       overflow: hidden;
+      transition: transform 0.25s var(--ease-spring), box-shadow 0.25s var(--ease-spring);
+    }
+
+    .video-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 45%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, transparent 100%);
+      pointer-events: none;
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
     }
 
     .avatar-bubble {
-      width: 72px;
-      height: 72px;
+      width: 82px;
+      height: 82px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
-      border: 2px solid white;
-      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.15);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 235, 248, 0.5) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 24px rgba(32, 22, 45, 0.08), inset 0 1px 1px #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 30px;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
     }
 
     .participant-label {
       position: absolute;
-      bottom: 12px;
-      left: 14px;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
+      bottom: 16px;
+      left: 18px;
+      background: rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--glass-border);
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
+      box-shadow: var(--specular-rim), 0 4px 12px rgba(0, 0, 0, 0.04);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 700;
       color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 7px;
     }
 
     .speaking-indicator {
       position: absolute;
       inset: 0;
-      border: 2.5px solid #38bdf8;
-      border-radius: 20px;
+      border: 2px solid var(--emerald-accent);
+      border-radius: 28px;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.2s ease;
+      box-shadow: 0 0 20px rgba(5, 150, 105, 0.35), inset 0 0 15px rgba(5, 150, 105, 0.15);
+      transition: opacity 0.25s ease;
     }
 
     .speaking .speaking-indicator {
       opacity: 1;
     }
 
-    /* Right Side Collapsible Chat Sidebar */
+    /* ==========================================================================
+       RIGHT CHAT SIDEBAR (Squircle Liquid Glass Card - Reference Image 2)
+       ========================================================================== */
     .chat-panel {
-      width: 360px;
+      position: relative;
+      isolation: isolate;
+      width: 380px;
       background: var(--glass-surface-dense);
-      backdrop-filter: blur(30px) saturate(200%);
-      -webkit-backdrop-filter: blur(30px) saturate(200%);
-      border-left: 1px solid var(--glass-border);
+      backdrop-filter: blur(32px) saturate(190%) contrast(106%);
+      -webkit-backdrop-filter: blur(32px) saturate(190%) contrast(106%);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      box-shadow: var(--shadow-liquid-lg), var(--specular-rim);
       display: flex;
       flex-direction: column;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s ease;
-      box-shadow: -8px 0 24px -6px rgba(15, 23, 42, 0.06);
-      z-index: 5;
+      transition: transform 0.32s var(--ease-spring), width 0.32s var(--ease-spring), opacity 0.25s ease;
+      overflow: hidden;
+      z-index: 15;
+    }
+
+    .chat-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, transparent 100%);
+      pointer-events: none;
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
     }
 
     .chat-panel.closed {
-      transform: translateX(100%);
+      transform: translateX(20px) scale(0.96);
       width: 0;
-      overflow: hidden;
-      border-left: none;
+      margin: 0;
+      opacity: 0;
+      pointer-events: none;
+      border: none;
+      box-shadow: none;
     }
 
     .chat-header {
-      height: 52px;
-      padding: 0 16px;
+      height: 60px;
+      padding: 0 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--glass-border-subtle);
-      font-weight: 700;
-      font-size: 15px;
     }
 
-    .btn-close-chat {
-      background: none;
-      border: none;
-      font-size: 16px;
-      color: var(--text-muted);
-      cursor: pointer;
-      width: 28px;
-      height: 28px;
+    .chat-header-title {
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: -0.2px;
+      color: var(--text-main);
+    }
+
+    /* Circular Glass Disc Button (Modeled after Reference Image 2) */
+    .glass-circle-btn {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--specular-rim), 0 3px 8px rgba(0, 0, 0, 0.04);
+      color: var(--text-secondary);
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.2s var(--ease-spring);
     }
 
-    .btn-close-chat:hover {
-      background: rgba(0, 0, 0, 0.05);
+    .glass-circle-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
       color: var(--text-main);
+      transform: scale(1.06);
+    }
+
+    .glass-circle-btn:active {
+      transform: scale(0.92);
     }
 
     .chat-messages {
       flex: 1;
-      padding: 16px;
+      padding: 18px 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .message-item {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      animation: message-in 0.2s ease-out;
+      gap: 5px;
+      animation: messageIn 0.25s var(--ease-spring);
     }
 
-    @keyframes message-in {
-      from { opacity: 0; transform: translateY(6px); }
+    @keyframes messageIn {
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .message-meta {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
+      gap: 8px;
+      font-size: 11.5px;
       color: var(--text-muted);
       font-weight: 600;
+      padding-left: 2px;
     }
 
     .message-sender {
@@ -289,149 +473,251 @@
     }
 
     .message-bubble {
-      background: rgba(255, 255, 255, 0.85);
+      position: relative;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--glass-border);
-      border-radius: 14px;
-      padding: 10px 14px;
-      font-size: 14px;
-      line-height: 1.4;
+      border-radius: 18px;
+      padding: 12px 16px;
+      font-size: 13.5px;
+      line-height: 1.45;
       color: var(--text-main);
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 4px 16px rgba(32, 22, 45, 0.04), var(--specular-rim);
       word-break: break-word;
     }
 
+    /* Phone Remote Message Bubble (Smoked Glass Accent) */
     .message-item.remote-phone .message-bubble {
-      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-      border-color: rgba(147, 197, 253, 0.8);
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(248, 245, 252, 0.75) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 24px rgba(32, 22, 45, 0.08), var(--specular-rim);
     }
 
+    /* Hairline Optical Glass Pill (Reference Image 2 Tag) */
     .remote-tag {
-      background: #2563eb;
-      color: white;
-      font-size: 9px;
+      background: var(--smoked-glass);
+      color: var(--text-inverse);
+      font-size: 9.5px;
       font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 2.5px 8px;
+      border-radius: 9999px;
+      letter-spacing: 0.4px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      box-shadow: var(--specular-rim-smoked);
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
-    /* Chat Input Form */
+    /* Chat Input Nested Glass Well */
     .chat-input-area {
-      padding: 14px 16px;
+      padding: 16px 20px;
       border-top: 1px solid var(--glass-border-subtle);
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       display: flex;
-      gap: 8px;
-      align-items: flex-end;
-      background: rgba(255, 255, 255, 0.6);
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-textarea-well {
+      background: var(--glass-well);
+      border: 1px solid var(--glass-border-subtle);
+      box-shadow: inset 0 1.5px 4px rgba(32, 22, 45, 0.06);
+      border-radius: 18px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
     }
 
     .chat-textarea {
-      flex: 1;
-      background: white;
-      border: 1px solid var(--glass-border-subtle);
-      border-radius: 14px;
-      padding: 10px 12px;
+      width: 100%;
+      background: transparent;
+      border: none;
       color: var(--text-main);
-      font-family: inherit;
-      font-size: 14px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
       line-height: 1.4;
       resize: none;
       outline: none;
-      min-height: 42px;
-      max-height: 100px;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+      min-height: 38px;
+      max-height: 90px;
     }
 
-    .chat-textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    .chat-textarea::placeholder {
+      color: var(--text-muted);
     }
 
+    /* Smoked Optical Glass Send Pill (Modeled after "+ Follow" in Reference Image 2) */
     .chat-send-btn {
-      background: var(--accent);
-      border: none;
-      color: white;
-      font-size: 14px;
+      position: relative;
+      isolation: isolate;
+      background: var(--smoked-glass);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 
+        0 10px 24px -6px rgba(20, 16, 26, 0.35),
+        var(--specular-rim-smoked);
+      color: var(--text-inverse);
+      font-family: var(--font-sans);
+      font-size: 13px;
       font-weight: 700;
-      padding: 10px 16px;
-      border-radius: 12px;
+      letter-spacing: 0.3px;
+      padding: 11px 24px;
+      border-radius: 9999px;
       cursor: pointer;
-      box-shadow: 0 4px 12px var(--accent-glow);
-      transition: transform 0.1s ease;
-      min-height: 42px;
-    }
-
-    .chat-send-btn:active {
-      transform: scale(0.95);
-    }
-
-    /* Bottom Control Bar */
-    footer {
-      height: 64px;
-      background: var(--glass-surface);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border-top: 1px solid var(--glass-border);
-      box-shadow: 0 -8px 24px -4px rgba(15, 23, 42, 0.05), var(--glass-specular);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      padding: 0 20px;
-      z-index: 10;
+      gap: 8px;
+      transition: all 0.2s var(--ease-spring);
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .chat-send-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+      pointer-events: none;
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
+    }
+
+    .chat-send-btn:hover {
+      background: var(--smoked-glass-hover);
+      transform: translateY(-1.5px);
+      box-shadow: 
+        0 14px 28px -6px rgba(20, 16, 26, 0.45),
+        var(--specular-rim-smoked);
+    }
+
+    .chat-send-btn:active {
+      transform: scale(0.97) translateY(1px);
+    }
+
+    /* ==========================================================================
+       BOTTOM CONTROL DOCK (Floating Liquid Glass Capsule - Reference Image 1)
+       ========================================================================== */
+    footer {
+      position: relative;
+      isolation: isolate;
+      z-index: 20;
+      height: 76px;
+      padding: 0 24px 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dock-capsule {
+      background: var(--glass-surface);
+      backdrop-filter: blur(28px) saturate(180%) contrast(104%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%) contrast(104%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-liquid-lg), var(--specular-rim);
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 8px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dock-capsule::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.48) 0%, transparent 100%);
+      pointer-events: none;
+      border-top-left-radius: inherit;
+      border-top-right-radius: inherit;
     }
 
     .control-btn {
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid var(--glass-border-subtle);
-      border-radius: 14px;
-      padding: 8px 14px;
+      position: relative;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--specular-rim), 0 2px 6px rgba(0, 0, 0, 0.03);
+      border-radius: 9999px;
+      padding: 7px 18px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
       color: var(--text-main);
       cursor: pointer;
-      min-width: 68px;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04), var(--glass-specular);
-      transition: all 0.12s ease;
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.85);
+      transform: translateY(-1.5px);
     }
 
     .control-btn:active {
-      background: white;
       transform: scale(0.94);
     }
 
     .control-btn.active {
-      background: #fef2f2;
-      border-color: #fca5a5;
-      color: var(--danger);
+      background: rgba(220, 38, 38, 0.12);
+      border-color: rgba(220, 38, 38, 0.4);
+      color: var(--ruby-accent);
     }
 
-    .control-icon { font-size: 16px; }
-    .control-label { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+    .control-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .control-label {
+      font-size: 12.5px;
+      font-weight: 700;
+    }
 
     .btn-leave {
-      background: #fee2e2;
-      border-color: #fca5a5;
-      color: var(--danger);
+      background: rgba(220, 38, 38, 0.12);
+      border-color: rgba(220, 38, 38, 0.35);
+      color: var(--ruby-accent);
+    }
+
+    .btn-leave:hover {
+      background: rgba(220, 38, 38, 0.2);
     }
   </style>
 </head>
 <body data-app="demo-chat">
-  <!-- Fluid Mesh Background -->
-  <div class="ambient-bg"></div>
+  <!-- Warm Sunset Cloudscape Atmospheric Backdrop -->
+  <div class="sky-canvas-backdrop">
+    <div class="cloud-mass cloud-1"></div>
+    <div class="cloud-mass cloud-2"></div>
+    <div class="cloud-mass cloud-3"></div>
+  </div>
 
-  <!-- Top Meeting Bar -->
+  <!-- Top Meeting Bar (Floating Liquid Capsule) -->
   <header>
-    <div class="meeting-info">
-      <span class="badge-live"><span class="live-dot"></span> Live Meeting</span>
-      <span class="meeting-title">Design Sprint • Weekly Sync (Interactive Demo)</span>
-    </div>
-    <div class="connection-pill" id="bridge-status">
-      Extension Bridge: Ready
+    <div class="header-capsule">
+      <div class="meeting-info">
+        <span class="badge-live"><span class="live-dot"></span> Live Meeting</span>
+        <span class="meeting-title">Design Sprint • Weekly Sync (Interactive Demo Target)</span>
+      </div>
+      <div class="connection-pill" id="bridge-status">
+        <span class="bridge-indicator"></span>
+        Extension Bridge: Ready
+      </div>
     </div>
   </header>
 
@@ -441,36 +727,43 @@
     <div class="video-grid-area">
       <div class="video-tiles-grid">
         <div class="video-card speaking">
-          <div class="avatar-bubble">👩‍💼</div>
-          <div class="participant-label">Sarah Chen (Host)</div>
+          <div class="avatar-bubble">SC</div>
+          <div class="participant-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a4 4 0 0 0-4 4v7a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Z"/><path d="M19 10v3a7 7 0 0 1-14 0v-3"/></svg>
+            Sarah Chen (Host)
+          </div>
           <div class="speaking-indicator"></div>
         </div>
 
         <div class="video-card">
-          <div class="avatar-bubble">👨‍💻</div>
+          <div class="avatar-bubble">DR</div>
           <div class="participant-label">David Ross</div>
           <div class="speaking-indicator"></div>
         </div>
 
         <div class="video-card">
-          <div class="avatar-bubble">🧑‍🎨</div>
+          <div class="avatar-bubble">ER</div>
           <div class="participant-label">Elena Rostova</div>
           <div class="speaking-indicator"></div>
         </div>
 
         <div class="video-card">
-          <div class="avatar-bubble">💻</div>
+          <div class="avatar-bubble">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M1 20h22"/></svg>
+          </div>
           <div class="participant-label">You (praful’s MacBook)</div>
           <div class="speaking-indicator"></div>
         </div>
       </div>
     </div>
 
-    <!-- Collapsible Chat Sidebar -->
+    <!-- Collapsible Chat Sidebar (Squircle Optical Glass Card) -->
     <aside class="chat-panel" id="chat-panel">
       <div class="chat-header">
-        <span>In-Call Messages</span>
-        <button class="btn-close-chat" id="btn-close-chat" title="Close chat panel">✕</button>
+        <span class="chat-header-title">In-Call Messages</span>
+        <button class="glass-circle-btn" id="btn-close-chat" title="Close chat panel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
       </div>
 
       <div class="chat-messages" id="chat-messages">
@@ -496,38 +789,45 @@
       </div>
 
       <div class="chat-input-area">
-        <textarea
-          id="demo-chat-input"
-          class="chat-textarea"
-          placeholder="Send a message to everyone..."
-          rows="1"
-        ></textarea>
-        <button id="demo-send-btn" class="chat-send-btn">Send</button>
+        <div class="chat-textarea-well">
+          <textarea
+            id="demo-chat-input"
+            class="chat-textarea"
+            placeholder="Send a message to everyone..."
+            rows="1"
+          ></textarea>
+        </div>
+        <button id="demo-send-btn" class="chat-send-btn">
+          <span>Send Message</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
       </div>
     </aside>
   </div>
 
-  <!-- Bottom Control Bar -->
+  <!-- Bottom Floating Liquid Glass Dock -->
   <footer>
-    <button class="control-btn" id="btn-mute" title="Toggle audio mute">
-      <span class="control-icon">🎙️</span>
-      <span class="control-label" id="mute-label">Mute</span>
-    </button>
+    <div class="dock-capsule">
+      <button class="control-btn" id="btn-mute" title="Toggle audio mute">
+        <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        <span class="control-label" id="mute-label">Mute</span>
+      </button>
 
-    <button class="control-btn" id="btn-cam" title="Toggle camera">
-      <span class="control-icon">📹</span>
-      <span class="control-label" id="cam-label">Video</span>
-    </button>
+      <button class="control-btn" id="btn-cam" title="Toggle camera">
+        <svg viewBox="0 0 24 24"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+        <span class="control-label" id="cam-label">Video</span>
+      </button>
 
-    <button class="control-btn" id="chat-toggle-btn" title="Toggle chat panel">
-      <span class="control-icon">💬</span>
-      <span class="control-label">Chat</span>
-    </button>
+      <button class="control-btn" id="chat-toggle-btn" title="Toggle chat panel">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="control-label">Chat</span>
+      </button>
 
-    <button class="control-btn btn-leave" title="Leave demo call">
-      <span class="control-icon">📞</span>
-      <span class="control-label">Leave</span>
-    </button>
+      <button class="control-btn btn-leave" title="Leave demo call">
+        <svg viewBox="0 0 24 24"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-6-6 19.8 19.8 0 0 1-3.12-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/></svg>
+        <span class="control-label">Leave</span>
+      </button>
+    </div>
   </footer>
 
   <script>

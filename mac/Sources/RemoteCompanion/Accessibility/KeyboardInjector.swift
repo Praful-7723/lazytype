@@ -37,6 +37,13 @@ public struct KeyboardInjector {
         postKey(keyCode: kVK_Return)
     }
     
+    public static func postBackspace(count: Int = 1) {
+        for _ in 0..<count {
+            postKey(keyCode: kVK_Delete)
+            usleep(2500)
+        }
+    }
+    
     public static func postKeyByName(_ name: String, modifiers: [String] = []) {
         var flags: CGEventFlags = []
         for mod in modifiers {

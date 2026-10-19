@@ -1,12 +1,13 @@
 {
-  "name": "LazyType Remote",
+  "name": "LazyType Companion",
   "short_name": "LazyType",
-  "description": "Local Android-to-Mac companion controller for hands-free typing and meeting chat.",
-  "start_url": "/",
+  "description": "Ultra-fast Android-to-Mac hands-free companion controller with instant typing and chat injection.",
+  "start_url": "/?source=pwa",
   "display": "standalone",
-  "background_color": "#090d16",
-  "theme_color": "#0f172a",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait",
+  "categories": ["utilities", "productivity"],
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -19,6 +20,14 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Connect Now",
+      "short_name": "Connect",
+      "description": "Instantly connect to Mac Companion",
+      "url": "/?auto=1"
     }
   ]
 }

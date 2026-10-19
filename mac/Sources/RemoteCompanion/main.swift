@@ -31,6 +31,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup menu bar item
         MenuBarManager.shared.setup()
         
+        // Show onboarding automatically on first launch
+        if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                OnboardingWindowController.shared.show()
+            }
+        }
+        
         // Print pairing info to console for easy developer access
         let pairUrl = PairingManager.shared.getPairingURL(port: Int(port))
         print("----------------------------------------------------------------")

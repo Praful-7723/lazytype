@@ -233,8 +233,8 @@ async function runTests() {
     console.error('[Server Error]', d.toString());
   });
 
-  // Wait up to 5s for server to start by polling /api/pair-token
-  for (let i = 0; i < 50; i++) {
+  // Wait up to 8s for server to start by polling /api/pair-token
+  for (let i = 0; i < 80; i++) {
     try {
       const res = await httpGet('/api/pair-token');
       if (res.statusCode === 200) {
@@ -250,6 +250,11 @@ async function runTests() {
   }
   assert(serverStarted, 'Mac companion server started and bound to port ' + TEST_PORT);
   assert(!!serverPairingToken, `Extracted active pairing token: ${serverPairingToken}`);
+
+  if (!serverStarted) {
+    console.error('Fatal: Test server failed to start within timeout.');
+    process.exit(1);
+  }
 
   // 2. HTTP Static Serving Tests
   console.log('\n[2] Testing HTTP static file delivery...');

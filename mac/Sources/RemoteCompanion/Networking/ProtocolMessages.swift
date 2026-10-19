@@ -21,6 +21,7 @@ public struct IncomingMessage: Codable {
     public let tabId: Int?
     public let url: String?
     public let adapter: String?
+    public let targetName: String?
     public let meetingDetected: Bool?
     public let chatOpen: Bool?
     public let chatAvailable: Bool?

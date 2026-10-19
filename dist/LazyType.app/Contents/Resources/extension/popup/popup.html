@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LazyType Bridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Ambient Atmospheric Backdrop -->
+  <div class="sky-canvas-backdrop"></div>
+
+  <div class="popup-container">
+    <div class="header-card">
+      <div class="logo">
+        <img src="mascot.svg" alt="LazyType Mascot" width="28" height="28" class="logo-icon" style="vertical-align: middle;">
+        <span class="title">LazyType Bridge</span>
+      </div>
+      <div class="status-pill" id="status-pill">
+        <span class="status-dot"></span>
+        <span id="status-text">Disconnected</span>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">Mac Companion Link</div>
+      <div class="server-row">
+        <div class="input-well">
+          <input type="text" id="server-url-input" class="input" placeholder="ws://127.0.0.1:9123/ws/extension">
+        </div>
+        <button id="reconnect-btn" class="btn-smoked">Connect</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">Active Meeting Tab</div>
+      <div class="info-card">
+        <div class="info-row">
+          <span class="label">Target Platform</span>
+          <span class="value" id="detected-adapter">Detecting...</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Meeting Active</span>
+          <span class="value" id="meeting-status">-</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Chat Input Field</span>
+          <span class="value" id="chat-status">-</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <a href="http://127.0.0.1:9123/demo" target="_blank" class="demo-link">
+        <span>Launch Interactive Demo Call</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

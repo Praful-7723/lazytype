@@ -28,6 +28,84 @@
     } catch (e) {}
   }
 
+  // 100x Multi-Pattern Tactile Haptics Engine + Synthesized Micro-Clicks
+  const Haptics = {
+    enabled: safeGetStorage('lazytype_haptics_enabled', 'true') === 'true',
+    audioCtx: null,
+
+    initAudio() {
+      if (!this.audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          this.audioCtx = new AudioContextClass();
+        } catch (e) {}
+      }
+      if (this.audioCtx && this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume().catch(() => {});
+      }
+    },
+
+    playMicroClick(freq = 1400, duration = 0.008, gainVal = 0.035) {
+      try {
+        if (!this.audioCtx) this.initAudio();
+        if (!this.audioCtx) return;
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start();
+        osc.stop(this.audioCtx.currentTime + duration);
+      } catch (e) {}
+    },
+
+    trigger(pattern, soundFreq = 1400) {
+      if (!this.enabled) return;
+      if ('vibrate' in navigator) {
+        try {
+          navigator.vibrate(pattern);
+        } catch (e) {}
+      }
+      this.playMicroClick(soundFreq);
+    },
+
+    tick() {
+      this.trigger(12, 1600);
+    },
+
+    chip() {
+      this.trigger(20, 1250);
+    },
+
+    drawer() {
+      this.trigger([15, 30, 20], 950);
+    },
+
+    send() {
+      this.trigger([35, 45, 40], 680);
+    },
+
+    success() {
+      this.trigger([25, 40, 50, 30, 70], 1750);
+    },
+
+    error() {
+      this.trigger([80, 50, 80], 420);
+    },
+
+    toggle() {
+      this.enabled = !this.enabled;
+      safeSetStorage('lazytype_haptics_enabled', this.enabled ? 'true' : 'false');
+      if (this.enabled) {
+        this.trigger([30, 40], 1200);
+      }
+      return this.enabled;
+    }
+  };
+
   // Application State
   const state = {
     socket: null,
@@ -72,6 +150,10 @@
   const macNameEl = document.getElementById('mac-name');
   const connectionStateEl = document.getElementById('connection-state');
   const btnDisconnect = document.getElementById('btn-disconnect');
+  const btnToggleHaptic = document.getElementById('btn-toggle-haptic');
+  const pingBadge = document.getElementById('ping-badge');
+  const messageCardFrame = document.getElementById('message-card-frame');
+  const metaCounter = document.getElementById('meta-counter');
 
   const messageInput = document.getElementById('message-input');
   const btnVoiceDictate = document.getElementById('btn-voice-dictate');
@@ -92,6 +174,65 @@
   const toast = document.getElementById('toast');
   const toastMessage = document.getElementById('toast-message');
 
+  // 100x Interactive Rive Animation Controller
+  const RiveController = {
+    instance: null,
+    isConnectedInput: null,
+    onSendInput: null,
+    isLoaded: false,
+
+    init() {
+      const canvas = document.getElementById('rive-canvas');
+      const container = document.getElementById('rive-container');
+      const fallback = document.getElementById('radar-fallback');
+      if (!canvas || typeof rive === 'undefined') return;
+
+      try {
+        this.instance = new rive.Rive({
+          src: '/animations/lazytype_connect.riv',
+          canvas: canvas,
+          autoplay: true,
+          stateMachines: 'State Machine 1',
+          onLoad: () => {
+            this.isLoaded = true;
+            this.instance.resizeDrawingSurfaceToCanvas();
+            if (container) container.classList.remove('hidden');
+            if (fallback) fallback.classList.add('hidden');
+
+            const inputs = this.instance.stateMachineInputs('State Machine 1');
+            if (inputs) {
+              this.isConnectedInput = inputs.find(i => i.name === 'isConnected');
+              this.onSendInput = inputs.find(i => i.name === 'onSend' || i.name === 'triggerSend');
+              if (this.isConnectedInput) {
+                this.isConnectedInput.value = state.isConnected;
+              }
+            }
+            console.log('[Rive] Interactive state machine connected: State Machine 1');
+          },
+          onError: () => {
+            console.log('[Rive] .riv file not found or not yet exported, using fallback radar');
+            if (container) container.classList.add('hidden');
+            if (fallback) fallback.classList.remove('hidden');
+          }
+        });
+      } catch (e) {
+        console.warn('[Rive] Init skipped:', e);
+      }
+    },
+
+    setConnected(connected) {
+      if (this.isConnectedInput) {
+        this.isConnectedInput.value = !!connected;
+      }
+    },
+
+    triggerSend() {
+      if (this.onSendInput) {
+        this.onSendInput.fire();
+      }
+    }
+  };
+
   // App Initialization
   init();
 
@@ -100,6 +241,7 @@
     renderCanvasLogo();
     renderHistory();
     setupEventListeners();
+    RiveController.init();
     autoConnectFlow();
   }
 
@@ -211,15 +353,18 @@
   }
 
   // Screen Transitions
-  function showScreen(name) {
+  function showScreen(name, immediate = false) {
     if (name === 'controller') {
-      screenPairing.classList.remove('active');
-      screenPairing.classList.add('hidden');
-      screenController.classList.remove('hidden');
-      screenController.classList.add('active');
+      const delay = (!immediate && RiveController.isLoaded) ? 650 : 0;
       setTimeout(() => {
-        if (messageInput) messageInput.focus();
-      }, 150);
+        screenPairing.classList.remove('active');
+        screenPairing.classList.add('hidden');
+        screenController.classList.remove('hidden');
+        screenController.classList.add('active');
+        setTimeout(() => {
+          if (messageInput) messageInput.focus();
+        }, 150);
+      }, delay);
     } else {
       screenController.classList.remove('active');
       screenController.classList.add('hidden');
@@ -230,6 +375,16 @@
 
   // Event Listeners
   function setupEventListeners() {
+    // Haptics toggle button
+    if (btnToggleHaptic) {
+      btnToggleHaptic.classList.toggle('haptic-active', Haptics.enabled);
+      btnToggleHaptic.addEventListener('click', () => {
+        const isEnabled = Haptics.toggle();
+        btnToggleHaptic.classList.toggle('haptic-active', isEnabled);
+        showToast(isEnabled ? 'Tactile Haptics: Enabled' : 'Tactile Haptics: Disabled', true);
+      });
+    }
+
     // Send Message Button
     if (btnSendMessage) {
       btnSendMessage.addEventListener('click', handleSendAction);
@@ -237,6 +392,15 @@
 
     // Textarea enter key to send
     if (messageInput) {
+      messageInput.addEventListener('focus', () => {
+        if (messageCardFrame) messageCardFrame.classList.add('focused');
+        Haptics.tick();
+      });
+
+      messageInput.addEventListener('blur', () => {
+        if (messageCardFrame) messageCardFrame.classList.remove('focused');
+      });
+
       messageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
@@ -244,39 +408,66 @@
         }
       });
 
-      // Clear button toggle
+      // Clear button toggle, character/word counter & REAL-TIME LIVE KEYSTROKE SYNC
+      let liveInputDebounce = null;
       messageInput.addEventListener('input', () => {
+        const val = messageInput.value;
         if (btnClearText) {
-          btnClearText.classList.toggle('hidden', !messageInput.value.trim());
+          btnClearText.classList.toggle('hidden', !val.trim());
         }
+        Haptics.tick();
+
+        // Real-Time Keystroke Mirroring to Mac Screen ("Mac is possessed")
+        clearTimeout(liveInputDebounce);
+        liveInputDebounce = setTimeout(() => {
+          if (state.isConnected && state.hasActiveChat) {
+            sendWsCommand('LIVE_INPUT', { text: val });
+          }
+        }, 20);
       });
     }
 
-    // Clear text button
+    // Clear text button (clears both phone and Mac live field)
     if (btnClearText) {
       btnClearText.addEventListener('click', () => {
         messageInput.value = '';
         btnClearText.classList.add('hidden');
+        Haptics.tick();
+        if (state.isConnected && state.hasActiveChat) {
+          sendWsCommand('LIVE_INPUT', { text: '' });
+        }
         messageInput.focus();
       });
     }
 
-    // Quick canned reply chips
+    // Quick canned reply chips (1-Tap Direct Send)
     document.querySelectorAll('.liquid-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         const text = chip.dataset.text;
         if (text && messageInput) {
           messageInput.value = text;
           if (btnClearText) btnClearText.classList.remove('hidden');
-          messageInput.focus();
-          vibrate(25);
+          if (metaCounter) {
+            const words = text.trim().split(/\s+/).length;
+            metaCounter.textContent = `${text.length} chars • ${words} words`;
+          }
+          Haptics.chip();
+          if (state.hasActiveChat) {
+            handleSendAction();
+          } else {
+            Haptics.error();
+            showToast('No chat window detected on Mac screen. Open a chatbox first!', false);
+          }
         }
       });
     });
 
     // Voice dictation button
     if (btnVoiceDictate) {
-      btnVoiceDictate.addEventListener('click', toggleVoiceDictation);
+      btnVoiceDictate.addEventListener('click', () => {
+        Haptics.tick();
+        toggleVoiceDictation();
+      });
     }
 
     // Toggle Auxiliary Meeting Drawer
@@ -287,12 +478,14 @@
         if (chevron) {
           chevron.style.transform = auxControlsDrawer.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         }
+        Haptics.drawer();
       });
     }
 
     // Quick meeting controls
     if (btnMute) {
       btnMute.addEventListener('click', () => {
+        Haptics.tick();
         sendWsCommand('TOGGLE_MUTE', {}, (res) => {
           showToast(res.message || 'Mute toggled', res.success);
         });
@@ -301,6 +494,7 @@
 
     if (btnCamera) {
       btnCamera.addEventListener('click', () => {
+        Haptics.tick();
         sendWsCommand('TOGGLE_CAMERA', {}, (res) => {
           showToast(res.message || 'Camera toggled', res.success);
         });
@@ -309,6 +503,7 @@
 
     if (btnOpenChat) {
       btnOpenChat.addEventListener('click', () => {
+        Haptics.chip();
         sendWsCommand('OPEN_CHAT', { target: state.target }, (res) => {
           showToast(res.message || 'Chat panel opened', res.success);
         });
@@ -317,11 +512,16 @@
 
     if (btnPaste) {
       btnPaste.addEventListener('click', async () => {
+        Haptics.chip();
         try {
           const clipText = await navigator.clipboard.readText();
           if (clipText) {
             messageInput.value = clipText;
             if (btnClearText) btnClearText.classList.remove('hidden');
+            if (metaCounter) {
+              const words = clipText.trim().split(/\s+/).length;
+              metaCounter.textContent = `${clipText.length} chars • ${words} words`;
+            }
             showToast('Pasted from clipboard', true);
           } else {
             showToast('Clipboard is empty', false);
@@ -336,15 +536,15 @@
     document.querySelectorAll('.key-pill-glass').forEach(btn => {
       btn.addEventListener('click', () => {
         const key = btn.dataset.key;
-        sendWsCommand('PRESS_KEY', { key }, (res) => {
-          vibrate(20);
-        });
+        Haptics.tick();
+        sendWsCommand('PRESS_KEY', { key }, (res) => {});
       });
     });
 
     // Clear history
     if (btnClearHistory) {
       btnClearHistory.addEventListener('click', () => {
+        Haptics.tick();
         state.messageHistory = [];
         safeRemoveStorage('lazytype_history');
         renderHistory();
@@ -354,6 +554,7 @@
     // Disconnect button
     if (btnDisconnect) {
       btnDisconnect.addEventListener('click', () => {
+        Haptics.drawer();
         disconnect();
         showScreen('pairing');
         if (connectTitle) connectTitle.textContent = 'Disconnected';
@@ -465,19 +666,29 @@
     const text = messageInput.value.trim();
     if (!text) {
       messageInput.focus();
+      Haptics.tick();
       return;
     }
 
-    vibrate(40);
+    if (!state.hasActiveChat) {
+      Haptics.error();
+      showToast('No active text or search field on Mac screen. Focus a field first!', false);
+      return;
+    }
+
+    Haptics.send();
+    RiveController.triggerSend();
 
     sendWsCommand('SEND_MESSAGE', { target: state.target, text }, (res) => {
       if (res.success) {
-        showToast(res.message || 'Message sent ✓', true);
+        Haptics.success();
+        showToast(res.message || 'Message sent to Mac ✓', true);
         addToHistory(text);
         messageInput.value = '';
         if (btnClearText) btnClearText.classList.add('hidden');
       } else {
-        showToast(res.message || res.errorCode || 'Failed to send', false);
+        Haptics.error();
+        showToast(res.message || 'Failed to send to Mac', false);
       }
     });
   }
@@ -561,19 +772,19 @@
         console.log('[LazyType] WebSocket open to', wsUrl);
         state.reconnectDelay = 1000;
 
-        if (state.token) {
-          sendWsMessage({
-            type: 'PAIR',
-            requestId: 'req_pair_' + Date.now(),
-            token: state.token,
-            deviceId: state.deviceId,
-            deviceName: state.deviceName
-          });
-        } else if (state.sessionToken) {
+        if (state.sessionToken) {
           sendWsMessage({
             type: 'AUTH',
             requestId: 'req_auth_' + Date.now(),
             sessionToken: state.sessionToken,
+            deviceId: state.deviceId,
+            deviceName: state.deviceName
+          });
+        } else if (state.token) {
+          sendWsMessage({
+            type: 'PAIR',
+            requestId: 'req_pair_' + Date.now(),
+            token: state.token,
             deviceId: state.deviceId,
             deviceName: state.deviceName
           });
@@ -639,6 +850,7 @@
     if (status === 'connected') {
       state.isConnected = true;
       state.isReconnecting = false;
+      RiveController.setConnected(true);
       if (statusDot) statusDot.className = 'status-dot connected';
       if (connectionStateEl) {
         connectionStateEl.textContent = '• Ready ✓';
@@ -647,6 +859,7 @@
       showScreen('controller');
     } else if (status === 'reconnecting') {
       state.isConnected = false;
+      RiveController.setConnected(false);
       if (statusDot) statusDot.className = 'status-dot reconnecting';
       if (connectionStateEl) {
         connectionStateEl.textContent = '• Reconnecting...';
@@ -654,6 +867,7 @@
       }
     } else {
       state.isConnected = false;
+      RiveController.setConnected(false);
       if (statusDot) statusDot.className = 'status-dot';
       if (connectionStateEl) {
         connectionStateEl.textContent = '• Disconnected';
@@ -670,6 +884,10 @@
       if (msg.success) {
         state.sessionToken = msg.sessionToken;
         safeSetStorage('lazytype_session_token', msg.sessionToken);
+        state.token = '';
+        try {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (e) {}
         state.macName = msg.macName || state.macName;
         if (macNameEl) macNameEl.textContent = state.macName;
         setConnectionStatus('connected');
@@ -678,11 +896,32 @@
         vibrate(50);
         sendWsMessage({ type: 'GET_STATUS' });
       } else {
-        showToast(msg.message || 'Pairing failed', false);
-        if (connectTitle) connectTitle.textContent = 'Pairing Failed';
-        if (connectStatus) connectStatus.textContent = msg.message || 'Invalid or expired token';
-        if (manualSettingsForm) manualSettingsForm.classList.remove('hidden');
-        showScreen('pairing');
+        state.token = '';
+        try {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (e) {}
+        showToast('Refreshing pairing credentials...', false);
+        fetch('/api/pair-token')
+          .then(r => r.json())
+          .then(data => {
+            if (data && data.token) {
+              state.token = data.token;
+              setTimeout(() => connectWebSocket(), 300);
+            } else {
+              showToast(msg.message || 'Pairing failed', false);
+              if (connectTitle) connectTitle.textContent = 'Pairing Required';
+              if (connectStatus) connectStatus.textContent = 'Scan QR code from Mac menu bar';
+              if (manualSettingsForm) manualSettingsForm.classList.remove('hidden');
+              showScreen('pairing');
+            }
+          })
+          .catch(() => {
+            showToast(msg.message || 'Pairing failed', false);
+            if (connectTitle) connectTitle.textContent = 'Pairing Failed';
+            if (connectStatus) connectStatus.textContent = msg.message || 'Invalid or expired token';
+            if (manualSettingsForm) manualSettingsForm.classList.remove('hidden');
+            showScreen('pairing');
+          });
       }
       return;
     }
@@ -729,8 +968,70 @@
       macNameEl.textContent = status.macName;
     }
 
-    if (status.meetingDetected && connectionStateEl) {
-      connectionStateEl.textContent = `• ${status.activeApplication || 'Call'} Active ✓`;
+    const hasChat = !!(status.chatAvailable || status.chatOpen || status.meetingDetected);
+    state.hasActiveChat = hasChat;
+
+    const targetFeedbackCard = document.getElementById('target-feedback-card');
+    const targetStatusTitle = document.getElementById('target-status-title');
+    const targetStatusSub = document.getElementById('target-status-sub');
+    const sendBtnLabel = document.getElementById('send-btn-label');
+    const liveTypingStatus = document.getElementById('live-typing-status');
+    const composerTargetTitle = document.getElementById('composer-target-title');
+
+    // Friendly App / Target Title (Google Search, YouTube Search, Notes, Meet, etc.)
+    let targetName = status.activeApplication || 'Active Field';
+    if (status.adapter === 'demo-chat') targetName = 'Interactive Demo Meeting';
+    else if (status.adapter === 'google-meet') targetName = 'Google Meet Chat';
+    else if (status.adapter === 'zoom-web' || status.adapter === 'zoom-native') targetName = 'Zoom Meeting Chat';
+    else if (status.adapter === 'slack-web') targetName = 'Slack Channel';
+    else if (status.adapter === 'teams-web') targetName = 'Microsoft Teams Chat';
+
+    // Update Artistic Hero Banner
+    const bannerTargetApp = document.getElementById('banner-target-app');
+    const bannerHintText = document.getElementById('banner-hint-text');
+    if (bannerTargetApp) bannerTargetApp.textContent = targetName;
+    if (bannerHintText) {
+      bannerHintText.textContent = hasChat 
+        ? 'Connected to active input field on your Mac'
+        : 'Focus any chat or search field on your Mac to type';
+    }
+
+    if (hasChat) {
+      if (targetFeedbackCard) targetFeedbackCard.classList.add('hidden');
+      if (composerTargetTitle) composerTargetTitle.textContent = 'MIRRORING TO ' + targetName.toUpperCase();
+      if (btnSendMessage) btnSendMessage.disabled = false;
+      if (sendBtnLabel) sendBtnLabel.textContent = 'SEND TO ' + targetName.toUpperCase() + ' ➔';
+      if (liveTypingStatus) {
+        liveTypingStatus.textContent = 'Live Mirror Ready ✓';
+        liveTypingStatus.style.color = '#10b981';
+      }
+      if (connectionStateEl) {
+        connectionStateEl.textContent = '• ' + targetName;
+        connectionStateEl.style.color = '#10b981';
+      }
+      if (statusDot) {
+        statusDot.className = 'status-jewel connected';
+      }
+    } else {
+      if (targetFeedbackCard) {
+        targetFeedbackCard.classList.remove('hidden');
+        if (targetStatusTitle) targetStatusTitle.textContent = 'No Active Input Field';
+        if (targetStatusSub) targetStatusSub.textContent = 'Click any search bar, chat, or text box on your Mac to type';
+      }
+      if (composerTargetTitle) composerTargetTitle.textContent = 'LIVE KEYSTROKES TO MAC';
+      if (btnSendMessage) btnSendMessage.disabled = true;
+      if (sendBtnLabel) sendBtnLabel.textContent = 'FOCUS TEXT FIELD ON MAC';
+      if (liveTypingStatus) {
+        liveTypingStatus.textContent = 'Waiting for Mac Field';
+        liveTypingStatus.style.color = '#d97706';
+      }
+      if (connectionStateEl) {
+        connectionStateEl.textContent = '• Waiting for text field';
+        connectionStateEl.style.color = '#d97706';
+      }
+      if (statusDot) {
+        statusDot.className = 'status-jewel waiting';
+      }
     }
 
     if (status.isMuted !== undefined && quickMuteLabel && btnMute) {
@@ -755,8 +1056,14 @@
       ...params
     };
 
+    const startTime = performance.now();
+
     if (callback) {
-      state.pendingRequests.set(requestId, callback);
+      state.pendingRequests.set(requestId, (res) => {
+        const latency = Math.max(1, Math.round(performance.now() - startTime));
+        if (pingBadge) pingBadge.textContent = `${latency}ms`;
+        callback(res);
+      });
       setTimeout(() => {
         if (state.pendingRequests.has(requestId)) {
           state.pendingRequests.delete(requestId);
@@ -795,8 +1102,12 @@
         if (messageInput) {
           messageInput.value = item;
           if (btnClearText) btnClearText.classList.remove('hidden');
+          if (metaCounter) {
+            const words = item.trim().split(/\s+/).length;
+            metaCounter.textContent = `${item.length} chars • ${words} words`;
+          }
           messageInput.focus();
-          vibrate(20);
+          Haptics.chip();
         }
       });
       historyList.appendChild(el);
@@ -818,11 +1129,7 @@
   }
 
   function vibrate(ms) {
-    if ('vibrate' in navigator) {
-      try {
-        navigator.vibrate(ms);
-      } catch (e) {}
-    }
+    Haptics.trigger(ms);
   }
 
 })();

@@ -20,10 +20,14 @@ mkdir -p "$MACOS" "$RESOURCES"
 cp "$DIR/bin/LazyTypeCompanion" "$MACOS/$APP_NAME"
 chmod +x "$MACOS/$APP_NAME"
 
-# Copy web assets into Resources for standalone app distribution
-mkdir -p "$RESOURCES/phone" "$RESOURCES/demo"
+# Copy web assets and extension into Resources for standalone app distribution
+mkdir -p "$RESOURCES/phone" "$RESOURCES/demo" "$RESOURCES/extension"
 cp -R "$DIR/phone/public" "$RESOURCES/phone/"
 cp -R "$DIR/demo/demo.html" "$RESOURCES/demo/"
+cp -R "$DIR/extension/"* "$RESOURCES/extension/"
+if [ -d "$DIR/mac/Resources" ]; then
+    cp -R "$DIR/mac/Resources/"* "$RESOURCES/"
+fi
 
 # Copy icons
 if [ -f "$DIR/dist/AppIcon.icns" ]; then

@@ -23,7 +23,10 @@
   "permissions": [
     "tabs",
     "alarms",
-    "storage"
+    "storage",
+    "scripting",
+    "activeTab",
+    "webNavigation"
   ],
   "host_permissions": [
     "<all_urls>"

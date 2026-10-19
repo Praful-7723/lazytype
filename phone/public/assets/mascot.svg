@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <!-- Soft Gradient Sheens -->
+    <linearGradient id="cat-body-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f0f3f8"/>
+    </linearGradient>
+    <linearGradient id="ear-pink-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffb6c1"/>
+      <stop offset="100%" stop-color="#ffa0b4"/>
+    </linearGradient>
+    <linearGradient id="key-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181c24"/>
+      <stop offset="100%" stop-color="#080a0f"/>
+    </linearGradient>
+    <filter id="mascot-shadow" x="-20%" y="-15%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Shadow -->
+  <g filter="url(#mascot-shadow)">
+    <!-- Cat Ears -->
+    <!-- Left Ear -->
+    <path d="M 28 54 C 24 38, 30 20, 42 16 C 48 24, 52 38, 54 48 Z" fill="url(#cat-body-grad)" stroke="#11141c" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Left Inner Ear -->
+    <path d="M 32 46 C 30 34, 34 26, 42 22 C 45 28, 47 38, 48 44 Z" fill="url(#ear-pink-grad)"/>
+
+    <!-- Right Ear -->
+    <path d="M 92 54 C 96 38, 90 20, 78 16 C 72 24, 68 38, 66 48 Z" fill="url(#cat-body-grad)" stroke="#11141c" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Right Inner Ear -->
+    <path d="M 88 46 C 90 34, 86 26, 78 22 C 75 28, 73 38, 72 44 Z" fill="url(#ear-pink-grad)"/>
+
+    <!-- Cat Head (Plump, round, cuddly squircle) -->
+    <path d="M 22 66 C 20 48, 36 36, 60 36 C 84 36, 100 48, 98 66 C 98 84, 82 96, 60 96 C 38 96, 22 84, 22 66 Z" 
+          fill="url(#cat-body-grad)" stroke="#11141c" stroke-width="3" stroke-linejoin="round"/>
+
+    <!-- Cute Cheeks Blush -->
+    <ellipse cx="34" cy="69" rx="6" ry="3.5" fill="#ffb4c4" opacity="0.7"/>
+    <ellipse cx="86" cy="69" rx="6" ry="3.5" fill="#ffb4c4" opacity="0.7"/>
+
+    <!-- Cute Eyes: Happy Peaceful Curved Eyes (Kawaii Loafing Mood) -->
+    <path d="M 38 62 C 41 57, 47 57, 50 62" fill="none" stroke="#11141c" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M 70 62 C 73 57, 79 57, 82 62" fill="none" stroke="#11141c" stroke-width="3.2" stroke-linecap="round"/>
+
+    <!-- Cute Little Nose -->
+    <path d="M 58 66 C 59 65, 61 65, 62 66 C 61 68, 59 68, 58 66 Z" fill="#ff8ba0"/>
+
+    <!-- Sweet Kitty Mouth 'w' -->
+    <path d="M 54 69 Q 57 73 60 70 Q 63 73 66 69" fill="none" stroke="#11141c" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Tiny Whisker Marks -->
+    <line x1="21" y1="64" x2="13" y2="62" stroke="#11141c" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <line x1="20" y1="69" x2="12" y2="70" stroke="#11141c" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <line x1="99" y1="64" x2="107" y2="62" stroke="#11141c" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <line x1="100" y1="69" x2="108" y2="70" stroke="#11141c" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+
+    <!-- Cozy Mini Keyboard Under Paws -->
+    <rect x="25" y="86" width="70" height="24" rx="8" fill="url(#key-glow)" stroke="#2d3340" stroke-width="1.8"/>
+    <!-- Mini Keycaps (Cozy Typing) -->
+    <rect x="30" y="90" width="8" height="6" rx="2" fill="#ffffff" opacity="0.9"/>
+    <rect x="41" y="90" width="8" height="6" rx="2" fill="#ffffff" opacity="0.9"/>
+    <rect x="52" y="90" width="8" height="6" rx="2" fill="#ffffff" opacity="0.9"/>
+    <rect x="63" y="90" width="8" height="6" rx="2" fill="#ffffff" opacity="0.9"/>
+    <rect x="74" y="90" width="8" height="6" rx="2" fill="#ffffff" opacity="0.9"/>
+    <rect x="85" y="90" width="6" height="6" rx="2" fill="#ffffff" opacity="0.9"/>
+
+    <rect x="32" y="99" width="10" height="6" rx="2" fill="#ffffff" opacity="0.75"/>
+    <rect x="45" y="99" width="30" height="6" rx="2" fill="#ffffff" opacity="0.95"/> <!-- Space bar -->
+    <rect x="78" y="99" width="12" height="6" rx="2" fill="#ffffff" opacity="0.75"/>
+
+    <!-- Cute Round Paws Resting on Keyboard -->
+    <!-- Left Paw -->
+    <ellipse cx="44" cy="88" rx="8" ry="6" fill="#ffffff" stroke="#11141c" stroke-width="2.5"/>
+    <path d="M 42 86 L 42 90 M 46 86 L 46 90" stroke="#11141c" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Right Paw -->
+    <ellipse cx="76" cy="88" rx="8" ry="6" fill="#ffffff" stroke="#11141c" stroke-width="2.5"/>
+    <path d="M 74 86 L 74 90 M 78 86 L 78 90" stroke="#11141c" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Magical Typing Sparkles (Star Sparkle above head) -->
+    <path d="M 88 28 Q 88 33 93 33 Q 88 33 88 38 Q 88 33 83 33 Q 88 33 88 28 Z" fill="#ffffff" stroke="#11141c" stroke-width="1.2"/>
+    <circle cx="28" cy="30" r="2" fill="#ffffff" stroke="#11141c" stroke-width="1"/>
+  </g>
+</svg>

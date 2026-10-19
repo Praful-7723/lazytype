@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="cyber-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff3388" />
+      <stop offset="100%" stop-color="#ff0066" />
+    </linearGradient>
+
+    <linearGradient id="volt-green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ccff00" />
+      <stop offset="100%" stop-color="#00f59b" />
+    </linearGradient>
+
+    <linearGradient id="metal-mac" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d3139" />
+      <stop offset="100%" stop-color="#181a1f" />
+    </linearGradient>
+
+    <linearGradient id="screen-glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#141923" />
+      <stop offset="100%" stop-color="#0a0c10" />
+    </linearGradient>
+  </defs>
+
+  <!-- ASSET 1: Phone Companion (Left) -->
+  <g id="asset-phone" transform="translate(100, 150)">
+    <!-- Phone Outer Shell -->
+    <rect x="0" y="0" width="130" height="240" rx="28" fill="#181a20" stroke="url(#cyber-pink)" stroke-width="4" />
+    <!-- Screen Glass -->
+    <rect x="8" y="8" width="114" height="224" rx="20" fill="url(#screen-glow)" />
+    <!-- Dynamic Island / Speaker Pill -->
+    <rect x="45" y="16" width="40" height="10" rx="5" fill="#000000" />
+    <!-- Screen Chat Bubbles / Content Placeholder -->
+    <rect x="20" y="50" width="70" height="18" rx="8" fill="url(#cyber-pink)" opacity="0.85" />
+    <rect x="36" y="78" width="76" height="18" rx="8" fill="url(#volt-green)" opacity="0.85" />
+    <rect x="20" y="106" width="54" height="18" rx="8" fill="#303644" />
+    <!-- Home Bar Indicator -->
+    <rect x="42" y="218" width="46" height="4" rx="2" fill="#ffffff" opacity="0.5" />
+  </g>
+
+  <!-- ASSET 2: MacBook Pro (Right) -->
+  <g id="asset-macbook" transform="translate(480, 150)">
+    <!-- Display Lid -->
+    <rect x="20" y="20" width="220" height="145" rx="12" fill="#181a20" stroke="url(#volt-green)" stroke-width="3" />
+    <!-- Display Screen -->
+    <rect x="28" y="28" width="204" height="129" rx="6" fill="url(#screen-glow)" />
+    <!-- Video Call Video Windows Inside Mac Screen -->
+    <rect x="36" y="38" width="88" height="60" rx="6" fill="#242b38" />
+    <circle cx="80" cy="62" r="14" fill="url(#cyber-pink)" opacity="0.9" />
+    <rect x="132" y="38" width="88" height="60" rx="6" fill="#242b38" />
+    <circle cx="176" cy="62" r="14" fill="url(#volt-green)" opacity="0.9" />
+    <!-- Mac Meeting Chat Pane -->
+    <rect x="36" y="106" width="184" height="42" rx="4" fill="#12161f" stroke="#2d3546" stroke-width="1" />
+    <line x1="46" y1="120" x2="150" y2="120" stroke="url(#volt-green)" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="46" y1="134" x2="110" y2="134" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+    <!-- Display Notch / Camera -->
+    <rect x="118" y="22" width="24" height="7" rx="3.5" fill="#000000" />
+    <circle cx="130" cy="25.5" r="1.5" fill="url(#volt-green)" />
+    <!-- MacBook Bottom Base & Trackpad -->
+    <path d="M 0 170 L 260 170 L 244 196 L 16 196 Z" fill="url(#metal-mac)" stroke="#3b4252" stroke-width="2" />
+    <rect x="105" y="172" width="50" height="5" rx="2" fill="#0d0f14" />
+    <rect x="95" y="180" width="70" height="12" rx="3" fill="#212631" stroke="#373e4d" stroke-width="1" />
+  </g>
+
+  <!-- ASSET 3: Wireless Signal Waves & Connecting Radar Beams (Center) -->
+  <g id="asset-signal-waves" transform="translate(290, 220)">
+    <!-- Arc Wave 1 -->
+    <path d="M 20 20 A 30 30 0 0 1 20 80" fill="none" stroke="url(#cyber-pink)" stroke-width="4" stroke-linecap="round" />
+    <!-- Arc Wave 2 -->
+    <path d="M 50 5 A 50 50 0 0 1 50 95" fill="none" stroke="url(#volt-green)" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 6" />
+    <!-- Arc Wave 3 -->
+    <path d="M 80 -10 A 70 70 0 0 1 80 110" fill="none" stroke="url(#cyber-pink)" stroke-width="4" stroke-linecap="round" />
+    <!-- Arc Wave 4 (Opposite direction from Mac) -->
+    <path d="M 120 20 A 30 30 0 0 0 120 80" fill="none" stroke="url(#volt-green)" stroke-width="4" stroke-linecap="round" />
+    <!-- Central Lightning Spark / Energy Pulse -->
+    <path d="M 72 32 L 60 52 L 70 52 L 66 70 L 82 48 L 72 48 Z" fill="url(#volt-green)" stroke="#ffffff" stroke-width="1.5" />
+  </g>
+
+  <!-- ASSET 4: Connected Checkmark Badge & Lock Ring -->
+  <g id="asset-connected-badge" transform="translate(360, 420)">
+    <circle cx="40" cy="40" r="36" fill="#0d1117" stroke="url(#volt-green)" stroke-width="5" />
+    <circle cx="40" cy="40" r="26" fill="url(#volt-green)" opacity="0.2" />
+    <!-- Checkmark Path -->
+    <path d="M 26 40 L 36 50 L 54 28" fill="none" stroke="url(#volt-green)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- ASSET 5: Pulse Energy Dots -->
+  <g id="asset-energy-dots" transform="translate(260, 450)">
+    <circle cx="0" cy="0" r="6" fill="url(#cyber-pink)" />
+    <circle cx="25" cy="0" r="7" fill="url(#volt-green)" />
+    <circle cx="50" cy="0" r="6" fill="url(#cyber-pink)" />
+  </g>
+</svg>
