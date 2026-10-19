@@ -10,15 +10,16 @@ public final class OnboardingWindowController: NSWindowController, WKScriptMessa
     
     public init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 800, height: 750),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 500),
+            styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
         )
-        window.title = "LazyType • Quick Setup Guide"
+        window.title = "LazyType • Setup Guide"
         window.center()
         window.isReleasedWhenClosed = false
-        window.minSize = NSSize(width: 640, height: 600)
+        window.minSize = NSSize(width: 560, height: 500)
+        window.maxSize = NSSize(width: 560, height: 500)
         
         super.init(window: window)
         setupWebView()

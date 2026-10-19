@@ -2,27 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LazyType • Welcome & Quick Setup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>LazyType • Setup Guide</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-cream: #FFFDF8;
-      --ink-black: #16161A;
-      --ink-muted: #5A5D6B;
-      --cat-red: #FF3B30;
-      --cat-accent: #FF5252;
-      --border-sketch: #16161A;
-      --shadow-sketch: 5px 5px 0px #16161A;
-      --shadow-sketch-lg: 8px 8px 0px #16161A;
-      --pastel-yellow: #FEF08A;
-      --pastel-blue: #BAE6FD;
-      --pastel-green: #BBF7D0;
-      --pastel-pink: #FBCFE8;
-      --pastel-purple: #E9D5FF;
-      --accent-green: #10B981;
+      --cat-red: #FF3838;
+      --cat-dark: #D32F2F;
+      --cat-blush: #FF6B6B;
+      --ink: #14161D;
+      --bg-cream: #FFFDF9;
+      --key-white: #FFFFFF;
+      --border-sketch: #14161D;
+      --shadow: 4px 4px 0px #14161D;
+      --shadow-sm: 2.5px 2.5px 0px #14161D;
+      --pastel-yellow: #FEF3C7;
+      --pastel-green: #DCFCE7;
+      --pastel-blue: #E0F2FE;
     }
 
     * {
@@ -33,565 +31,513 @@
       -webkit-user-select: none;
     }
 
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background-color: var(--bg-cream);
       background-image: 
-        radial-gradient(#16161A 0.85px, transparent 0.85px),
-        radial-gradient(#16161A 0.85px, var(--bg-cream) 0.85px);
-      background-size: 28px 28px;
-      background-position: 0 0, 14px 14px;
-      color: var(--ink-black);
+        radial-gradient(var(--ink) 0.75px, transparent 0.75px),
+        radial-gradient(var(--ink) 0.75px, var(--bg-cream) 0.75px);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      padding: 32px 24px 60px;
-      line-height: 1.5;
+      color: var(--ink);
     }
 
-    .container {
-      max-width: 760px;
-      margin: 0 auto;
+    .carousel-viewport {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 24px 18px;
     }
 
-    /* Manga Speech Bubble */
-    .speech-bubble {
+    /* Track containing the slides */
+    .slides-container {
       position: relative;
-      background: #FFFFFF;
-      border: 3.5px solid var(--border-sketch);
-      border-radius: 20px;
-      padding: 14px 20px;
-      font-family: 'Fredoka', cursive, sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      box-shadow: 4px 4px 0px var(--border-sketch);
-      margin-bottom: 24px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+      flex: 1;
+      width: 100%;
+      overflow: hidden;
     }
 
-    .speech-bubble::after {
+    .slides-track {
+      display: flex;
+      width: 400%;
+      height: 100%;
+      transition: transform 0.38s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .slide {
+      width: 25%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px 12px;
+    }
+
+    /* Hand-Drawn Anime Elements */
+    .mascot-box {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 12px;
+      filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.12));
+      animation: animeFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes animeFloat {
+      0%, 100% { transform: translateY(0px) rotate(-1deg); }
+      50% { transform: translateY(-6px) rotate(1.5deg); }
+    }
+
+    .mascot-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .manga-bubble {
+      background: var(--key-white);
+      border: 3px solid var(--border-sketch);
+      border-radius: 16px;
+      padding: 8px 16px;
+      font-family: 'Fredoka', cursive, sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 14px;
+      max-width: 420px;
+      position: relative;
+    }
+
+    .manga-bubble::after {
       content: '';
       position: absolute;
-      bottom: -14px;
-      left: 48px;
-      border-width: 14px 12px 0;
+      bottom: -9px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 9px 8px 0;
       border-style: solid;
       border-color: #FFFFFF transparent;
       display: block;
       width: 0;
     }
 
-    .speech-bubble::before {
+    .manga-bubble::before {
       content: '';
       position: absolute;
-      bottom: -18px;
-      left: 46px;
-      border-width: 16px 14px 0;
+      bottom: -13px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 11px 10px 0;
       border-style: solid;
       border-color: var(--border-sketch) transparent;
       display: block;
       width: 0;
     }
 
-    /* Hero Banner */
-    .hero-banner {
-      background: #FFFFFF;
-      border: 3.5px solid var(--border-sketch);
-      border-radius: 26px;
-      padding: 28px;
-      box-shadow: var(--shadow-sketch-lg);
-      margin-bottom: 28px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-
-    .hero-badge-tag {
-      position: absolute;
-      top: -14px;
-      right: 24px;
-      background: var(--pastel-yellow);
-      border: 2.5px solid var(--border-sketch);
-      padding: 4px 14px;
-      border-radius: 16px;
-      font-family: 'Fredoka', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      box-shadow: 2.5px 2.5px 0px var(--border-sketch);
-    }
-
-    .mascot-avatar {
-      width: 110px;
-      height: 110px;
-      flex-shrink: 0;
-      filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.12));
-      animation: floatAnime 3s ease-in-out infinite;
-    }
-
-    @keyframes floatAnime {
-      0%, 100% { transform: translateY(0px) rotate(-1.5deg); }
-      50% { transform: translateY(-7px) rotate(2deg); }
-    }
-
-    .hero-content h1 {
+    .slide-title {
       font-family: 'Fredoka', cursive, sans-serif;
-      font-size: 32px;
+      font-size: 26px;
       font-weight: 700;
-      color: var(--ink-black);
+      color: var(--ink);
       line-height: 1.2;
       margin-bottom: 6px;
     }
 
-    .hero-content p {
-      font-size: 14.5px;
+    .slide-subtitle {
+      font-size: 13.5px;
       color: var(--ink-muted);
       font-weight: 600;
+      max-width: 440px;
+      margin-bottom: 16px;
+      line-height: 1.45;
     }
 
-    .hero-pills {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-
-    .pill-item {
-      font-size: 11.5px;
-      font-weight: 700;
-      border: 2px solid var(--border-sketch);
-      border-radius: 10px;
-      padding: 2px 10px;
-      box-shadow: 1.5px 1.5px 0px var(--border-sketch);
-    }
-
-    /* Step Cards */
-    .steps-container {
+    /* Hand-Drawn Bento Inset Box */
+    .bento-box {
+      background: #FFFFFF;
+      border: 3px solid var(--border-sketch);
+      border-radius: 18px;
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 440px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
-    }
-
-    .step-card {
-      background: #FFFFFF;
-      border: 3.5px solid var(--border-sketch);
-      border-radius: 22px;
-      padding: 24px;
-      box-shadow: var(--shadow-sketch);
-      position: relative;
-    }
-
-    .step-header {
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .step-title-wrap {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .step-number {
-      width: 40px;
-      height: 40px;
-      border: 3px solid var(--border-sketch);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Fredoka', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      box-shadow: 2px 2px 0px var(--border-sketch);
-    }
-
-    .step-card:nth-child(1) .step-number { background: var(--pastel-yellow); }
-    .step-card:nth-child(2) .step-number { background: var(--pastel-blue); }
-    .step-card:nth-child(3) .step-number { background: var(--pastel-purple); }
-
-    .step-title {
-      font-family: 'Fredoka', cursive, sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .status-pill {
-      border: 2px solid var(--border-sketch);
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-family: 'Fredoka', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      box-shadow: 2px 2px 0px var(--border-sketch);
-      transition: all 0.2s ease;
-    }
-
-    .status-pill.granted {
-      background: var(--pastel-green);
-      color: #065F46;
-    }
-
-    .status-pill.pending {
-      background: var(--pastel-yellow);
-      color: #92400E;
-    }
-
-    .step-desc {
-      font-size: 14px;
-      color: var(--ink-muted);
-      font-weight: 500;
-      margin-bottom: 16px;
-    }
-
-    /* Hand-Drawn Action Buttons */
-    .btn-group {
-      display: flex;
       gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
     }
 
-    .anime-btn {
+    /* Color-Matched Hand-Drawn Buttons */
+    .btn-red {
+      background: var(--cat-red);
+      color: #FFFFFF;
+      border: 3px solid var(--border-sketch);
+      border-radius: 14px;
+      padding: 10px 20px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-family: 'Fredoka', cursive, sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      padding: 10px 18px;
-      border-radius: 14px;
-      border: 3px solid var(--border-sketch);
-      box-shadow: 4px 4px 0px var(--border-sketch);
-      cursor: pointer;
       text-decoration: none;
-      color: var(--ink-black);
-      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.12s ease;
     }
 
-    .anime-btn:hover {
+    .btn-red:hover {
+      background: var(--cat-dark);
       transform: translate(-2px, -2px);
       box-shadow: 6px 6px 0px var(--border-sketch);
     }
 
-    .anime-btn:active {
+    .btn-red:active {
       transform: translate(2px, 2px);
       box-shadow: 1px 1px 0px var(--border-sketch);
     }
 
-    .btn-primary {
-      background: var(--cat-accent);
-      color: #FFFFFF;
-    }
-
-    .btn-download {
-      background: #38BDF8;
-      color: #0F172A;
-    }
-
-    .btn-secondary {
+    .btn-white {
       background: #FFFFFF;
-      color: var(--ink-black);
-    }
-
-    .btn-launch {
-      background: var(--pastel-green);
-      color: #065F46;
-      font-size: 16px;
-      padding: 14px 28px;
-    }
-
-    /* Visual Sketch Box */
-    .sketch-box {
-      background: #F8FAFC;
-      border: 2.5px dashed var(--border-sketch);
-      border-radius: 16px;
-      padding: 16px;
-      margin-top: 16px;
-      display: flex;
+      color: var(--ink);
+      border: 2.5px solid var(--border-sketch);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      display: inline-flex;
       align-items: center;
-      justify-content: space-around;
-      gap: 12px;
+      gap: 6px;
+      transition: all 0.12s ease;
+    }
+
+    .btn-white:hover {
+      background: #F8FAFC;
+      transform: translate(-1.5px, -1.5px);
+      box-shadow: 4px 4px 0px var(--border-sketch);
+    }
+
+    .btn-white:active {
+      transform: translate(1.5px, 1.5px);
+      box-shadow: 1px 1px 0px var(--border-sketch);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
       flex-wrap: wrap;
     }
 
-    .flow-item {
-      background: #FFFFFF;
+    /* Badges */
+    .status-tag {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 11.5px;
+      font-weight: 700;
       border: 2px solid var(--border-sketch);
-      border-radius: 12px;
-      padding: 10px 16px;
-      text-align: center;
-      box-shadow: 2.5px 2.5px 0px var(--border-sketch);
-      min-width: 120px;
+      border-radius: 10px;
+      padding: 3px 10px;
+      box-shadow: 1.5px 1.5px 0px var(--border-sketch);
     }
 
-    .flow-item .icon { font-size: 24px; }
-    .flow-item .label { font-size: 12px; font-weight: 700; margin-top: 4px; }
+    .tag-green { background: var(--pastel-green); color: #065F46; }
+    .tag-yellow { background: var(--pastel-yellow); color: #92400E; }
+    .tag-blue { background: var(--pastel-blue); color: #075985; }
 
-    .arrow-doodle {
-      font-size: 22px;
-      font-weight: 900;
-      color: var(--cat-red);
-      animation: bounceArrow 1.5s infinite;
+    /* Footer Navigation Row */
+    .nav-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 2px dashed rgba(20, 22, 29, 0.2);
     }
 
-    @keyframes bounceArrow {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(6px); }
+    .dots-track {
+      display: flex;
+      gap: 8px;
     }
 
-    /* Live Toast */
-    #anime-toast {
-      display: none;
-      margin-top: 14px;
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 5px;
+      border: 2px solid var(--border-sketch);
+      background: #FFFFFF;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      width: 24px;
+      background: var(--cat-red);
+    }
+
+    /* Toast */
+    #toast {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px);
       background: var(--pastel-yellow);
       border: 2.5px solid var(--border-sketch);
-      border-radius: 14px;
-      padding: 10px 16px;
+      border-radius: 12px;
+      padding: 6px 16px;
       font-family: 'Fredoka', sans-serif;
-      font-size: 13.5px;
+      font-size: 12.5px;
       font-weight: 700;
       color: #92400E;
-      box-shadow: 3px 3px 0px var(--border-sketch);
-      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: var(--shadow-sm);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 100;
     }
 
-    @keyframes popIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 36px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <div id="toast">Saved to Downloads!</div>
+
+  <div class="carousel-viewport">
     
-    <!-- Manga Speech Bubble -->
-    <div class="speech-bubble">
-      <span>🐾</span>
-      <span>Nyaa~! Let's get you set up in 30 seconds! Follow my paw steps below! ✨</span>
-    </div>
+    <div class="slides-container">
+      <div class="slides-track" id="track">
 
-    <!-- Hero Header -->
-    <div class="hero-banner">
-      <div class="hero-badge-tag">OFFICIAL V1.0 LAUNCH</div>
-      <img src="mascot_cutout.png" alt="LazyType Mascot" class="mascot-avatar" onerror="this.src='http://127.0.0.1:9123/assets/mascot_cutout.png'" />
-      
-      <div class="hero-content">
-        <h1>Welcome to LazyType!</h1>
-        <p>Type silently from your phone straight into Zoom, Google Meet, and your Mac.</p>
-        
-        <div class="hero-pills">
-          <span class="pill-item" style="background: var(--pastel-yellow);">✨ Zero Awkward Leaning</span>
-          <span class="pill-item" style="background: var(--pastel-blue);">⚡ Universal (M-Chips & Intel)</span>
-          <span class="pill-item" style="background: var(--pastel-pink);">🔒 100% Peer-to-Peer</span>
+        <!-- SLIDE 1: WELCOME HERO -->
+        <div class="slide">
+          <div class="manga-bubble">
+            🐾 <span>Nyaa~! Let's get you set up in 20 seconds!</span>
+          </div>
+
+          <div class="mascot-box">
+            <img src="mascot_cutout.png" alt="Mascot" class="mascot-img" onerror="this.src='http://127.0.0.1:9123/assets/mascot_cutout.png'" />
+          </div>
+
+          <h1 class="slide-title">Welcome to LazyType!</h1>
+          <p class="slide-subtitle">
+            Type secretly from your phone straight into Zoom, Google Meet & your Mac apps without moving your trackpad.
+          </p>
+
+          <button class="btn-red" onclick="goToSlide(1)">
+            Start Setup ➔
+          </button>
         </div>
+
+        <!-- SLIDE 2: ACCESSIBILITY PERMISSION -->
+        <div class="slide">
+          <div class="mascot-box" style="width: 76px; height: 76px; margin-bottom: 6px;">
+            <img src="mascot_cutout.png" alt="Mascot" class="mascot-img" onerror="this.src='http://127.0.0.1:9123/assets/mascot_cutout.png'" />
+          </div>
+
+          <h2 class="slide-title">1. macOS Accessibility</h2>
+          <p class="slide-subtitle">
+            Required so LazyType can send keystrokes into active applications and meeting windows.
+          </p>
+
+          <div class="bento-box">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <span style="font-weight: 700; font-size: 13.5px;">Permission Status:</span>
+              <span id="access-tag" class="status-tag tag-yellow">Action Required ⚠️</span>
+            </div>
+
+            <button class="btn-red" onclick="postAction('openAccessibility')" style="width: 100%; justify-content: center;">
+              🔓 Open System Settings
+            </button>
+            <span style="font-size: 11px; color: var(--ink-muted); font-weight: 600;">
+              Toggle <strong>LazyType ➔ ON</strong> under Accessibility
+            </span>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: CHROME EXTENSION (DOWNLOAD BUTTON!) -->
+        <div class="slide">
+          <div class="mascot-box" style="width: 76px; height: 76px; margin-bottom: 6px;">
+            <img src="mascot_cutout.png" alt="Mascot" class="mascot-img" onerror="this.src='http://127.0.0.1:9123/assets/mascot_cutout.png'" />
+          </div>
+
+          <h2 class="slide-title">2. Chrome Extension</h2>
+          <p class="slide-subtitle">
+            Required for Google Meet, Zoom Web, and Teams chat inputs. Download below and drop into Chrome!
+          </p>
+
+          <div class="bento-box">
+            <!-- BIG UNMISSABLE DOWNLOAD BUTTON -->
+            <button class="btn-red" onclick="postAction('downloadZip')" style="width: 100%; justify-content: center; font-size: 15.5px;">
+              📥 Download Extension (.zip)
+            </button>
+
+            <div class="btn-group" style="width: 100%;">
+              <button class="btn-white" onclick="postAction('revealFolder')" style="flex: 1; justify-content: center;">
+                📂 Reveal Folder
+              </button>
+              <button class="btn-white" onclick="postAction('openChrome')" style="flex: 1; justify-content: center;">
+                🌐 Open Chrome
+              </button>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding-top: 4px;">
+              <span style="font-weight: 700; font-size: 12px; color: var(--ink-muted);">Bridge Status:</span>
+              <span id="ext-tag" class="status-tag tag-yellow">Waiting for Extension...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4: CONNECT PHONE & READY -->
+        <div class="slide">
+          <h2 class="slide-title" style="margin-bottom: 4px;">3. Connect Your Phone</h2>
+          <p class="slide-subtitle" style="margin-bottom: 10px;">
+            Scan this code with your phone camera on the same Wi-Fi.
+          </p>
+
+          <div class="bento-box" style="padding: 12px; gap: 8px;">
+            <img id="qr-img" src="http://127.0.0.1:9123/qr.png" alt="QR Code" width="130" height="130" style="border-radius: 8px; border: 2px solid var(--border-sketch);" onerror="this.src='/qr.png'" />
+            <button class="btn-red" onclick="postAction('complete')" style="width: 100%; justify-content: center;">
+              🚀 Start Using LazyType!
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Step Cards -->
-    <div class="steps-container">
-
-      <!-- STEP 1: ACCESSIBILITY -->
-      <div class="step-card">
-        <div class="step-header">
-          <div class="step-title-wrap">
-            <div class="step-number">1</div>
-            <div class="step-title">macOS Accessibility Permission</div>
-          </div>
-          <div id="access-pill" class="status-pill pending">Checking...</div>
-        </div>
-
-        <p class="step-desc">
-          Required so LazyType can send keystrokes into active applications and Zoom without moving your mouse.
-        </p>
-
-        <div class="btn-group">
-          <button class="anime-btn btn-secondary" onclick="postAction('openAccessibility')">
-            🔓 Open System Settings
-          </button>
-          <span style="font-size: 12px; color: var(--ink-muted); font-weight: 600;">
-            (Toggle LazyType ➔ <strong>ON</strong> under Accessibility)
-          </span>
-        </div>
-      </div>
-
-      <!-- STEP 2: CHROME EXTENSION (DOWNLOAD BUTTON IS RIGHT HERE!) -->
-      <div class="step-card">
-        <div class="step-header">
-          <div class="step-title-wrap">
-            <div class="step-number">2</div>
-            <div class="step-title">Chrome Extension (Google Meet & Calls)</div>
-          </div>
-          <div id="ext-pill" class="status-pill pending">Waiting for Extension...</div>
-        </div>
-
-        <p class="step-desc">
-          Allows you to type directly into Google Meet, Zoom Web, and Teams chat inputs. Download the file or drag the folder right into Chrome:
-        </p>
-
-        <!-- PROMINENT DOWNLOAD & ACTION BUTTONS -->
-        <div class="btn-group">
-          <button class="anime-btn btn-download" onclick="postAction('downloadZip')">
-            📥 Download Extension (.zip)
-          </button>
-
-          <button class="anime-btn btn-secondary" onclick="postAction('revealFolder')">
-            📂 Reveal Extension Folder
-          </button>
-
-          <button class="anime-btn btn-secondary" onclick="postAction('openChrome')">
-            🌐 Open chrome://extensions
-          </button>
-        </div>
-
-        <div id="anime-toast"></div>
-
-        <!-- Manga Walkthrough Flow -->
-        <div class="sketch-box">
-          <div class="flow-item">
-            <div class="icon">📦</div>
-            <div class="label">1. Click Download</div>
-            <span style="font-size: 10px; color: var(--ink-muted);">or Reveal Folder</span>
-          </div>
-          <div class="arrow-doodle">➔</div>
-          <div class="flow-item">
-            <div class="icon">⚙️</div>
-            <div class="label">2. Developer Mode</div>
-            <span style="font-size: 10px; color: var(--ink-muted);">Toggle ON in Chrome</span>
-          </div>
-          <div class="arrow-doodle">➔</div>
-          <div class="flow-item">
-            <div class="icon">🎯</div>
-            <div class="label">3. Drop into Chrome</div>
-            <span style="font-size: 10px; color: var(--ink-muted);">Instant Live Sync!</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- STEP 3: CONNECT PHONE -->
-      <div class="step-card">
-        <div class="step-header">
-          <div class="step-title-wrap">
-            <div class="step-number">3</div>
-            <div class="step-title">Connect Your Phone</div>
-          </div>
-          <div class="status-pill granted">Ready to Pair</div>
-        </div>
-
-        <p class="step-desc">
-          Click the button below or click our cute cat mascot in your Mac menu bar to open your unique pairing QR code. Scan it with your phone camera on the same Wi-Fi!
-        </p>
-
-        <div class="btn-group">
-          <button class="anime-btn btn-secondary" onclick="postAction('showQR')">
-            📱 Open Pairing QR Code
-          </button>
-          <button class="anime-btn btn-secondary" onclick="window.open('http://127.0.0.1:9123/demo', '_blank')">
-            🎙️ Try Interactive Demo Call
-          </button>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Final Launch Button -->
-    <div class="footer">
-      <button class="anime-btn btn-launch" onclick="postAction('complete')">
-        🚀 Start Using LazyType! (I'm Ready)
+    <!-- BOTTOM PROGRESS & NAVIGATION -->
+    <div class="nav-bar">
+      <button class="btn-white" id="btn-prev" onclick="prevSlide()" style="visibility: hidden;">
+        ← Back
       </button>
-      <p style="font-size: 12px; color: var(--ink-muted); font-weight: 600;">
-        You can always reopen this guide anytime by clicking the mascot in your menu bar!
-      </p>
+
+      <div class="dots-track">
+        <div class="dot active" onclick="goToSlide(0)"></div>
+        <div class="dot" onclick="goToSlide(1)"></div>
+        <div class="dot" onclick="goToSlide(2)"></div>
+        <div class="dot" onclick="goToSlide(3)"></div>
+      </div>
+
+      <button class="btn-white" id="btn-next" onclick="nextSlide()">
+        Next ➔
+      </button>
     </div>
 
   </div>
 
   <script>
+    let currentSlide = 0;
+    const totalSlides = 4;
+    const track = document.getElementById('track');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const dots = document.querySelectorAll('.dot');
+
+    function goToSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+      currentSlide = index;
+      track.style.transform = `translateX(-${currentSlide * 25}%)`;
+
+      // Update dots
+      dots.forEach((d, i) => {
+        if (i === currentSlide) d.classList.add('active');
+        else d.classList.remove('active');
+      });
+
+      // Update buttons
+      btnPrev.style.visibility = (currentSlide === 0) ? 'hidden' : 'visible';
+      if (currentSlide === totalSlides - 1) {
+        btnNext.style.visibility = 'hidden';
+      } else {
+        btnNext.style.visibility = 'visible';
+      }
+    }
+
+    function nextSlide() {
+      goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentSlide - 1);
+    }
+
     function postAction(actionName) {
       if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.onboarding) {
         window.webkit.messageHandlers.onboarding.postMessage({ action: actionName });
       } else {
-        // Fallback for browser testing
         if (actionName === 'downloadZip') {
-          showToast("🎉 Downloading LazyType-Chrome-Extension.zip!");
           window.location.href = 'LazyType-Chrome-Extension.zip';
         } else if (actionName === 'openChrome') {
-          showToast("🌐 Opening chrome://extensions...");
           window.open('chrome://extensions', '_blank');
-        } else if (actionName === 'showQR') {
-          window.open('http://127.0.0.1:9123/', '_blank');
+        } else if (actionName === 'complete') {
+          window.close();
         }
       }
 
       if (actionName === 'downloadZip') {
-        showToast("✨ Saved to your Downloads folder! Look for 'LazyType-Chrome-Extension.zip'!");
+        showToast("✨ Saved to Downloads folder!");
       } else if (actionName === 'revealFolder') {
-        showToast("📂 Opened extension folder in Finder! Drag it straight into Chrome!");
+        showToast("📂 Revealed in Finder!");
       }
     }
 
-    function showToast(text) {
-      const toast = document.getElementById('anime-toast');
-      if (toast) {
-        toast.innerHTML = text;
-        toast.style.display = 'block';
-        setTimeout(() => {
-          toast.style.display = 'none';
-        }, 5000);
-      }
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 4000);
     }
 
-    // Called periodically by Swift to update status dynamically
     window.updateSystemStatus = function(status) {
-      // Accessibility pill
-      const accessPill = document.getElementById('access-pill');
-      if (accessPill) {
+      const accessTag = document.getElementById('access-tag');
+      if (accessTag) {
         if (status.accessibility) {
-          accessPill.className = 'status-pill granted';
-          accessPill.innerText = 'Granted ✓';
+          accessTag.className = 'status-tag tag-green';
+          accessTag.innerText = 'Granted ✓';
         } else {
-          accessPill.className = 'status-pill pending';
-          accessPill.innerText = 'Action Required ⚠️';
+          accessTag.className = 'status-tag tag-yellow';
+          accessTag.innerText = 'Action Required ⚠️';
         }
       }
 
-      // Extension pill
-      const extPill = document.getElementById('ext-pill');
-      if (extPill) {
+      const extTag = document.getElementById('ext-tag');
+      if (extTag) {
         if (status.extensionConnected) {
-          extPill.className = 'status-pill granted';
-          extPill.innerText = 'Connected & Active ✓';
+          extTag.className = 'status-tag tag-green';
+          extTag.innerText = 'Connected & Active ✓';
         } else {
-          extPill.className = 'status-pill pending';
-          extPill.innerText = 'Waiting for Extension...';
+          extTag.className = 'status-tag tag-yellow';
+          extTag.innerText = 'Waiting for Extension...';
         }
       }
     };
 
-    // Auto-check on local server if running in web view
+    // Auto-poll local status
     setInterval(async () => {
       try {
         const res = await fetch('http://127.0.0.1:9123/api/status');
         if (res.ok) {
-          const data = await res.json();
+          const d = await res.json();
           window.updateSystemStatus({
             accessibility: true,
-            extensionConnected: data.browserExtensionConnected
+            extensionConnected: d.browserExtensionConnected
           });
         }
       } catch (e) {}
-    }, 1200);
+    }, 1000);
   </script>
 
 </body>
