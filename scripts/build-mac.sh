@@ -20,6 +20,7 @@ swiftc \
   -framework ApplicationServices \
   -framework CoreGraphics \
   -framework CoreImage \
+  -framework WebKit \
   $SWIFT_FILES \
   -o "$BIN_DIR/LazyTypeCompanion-arm64"
 
@@ -31,6 +32,7 @@ swiftc \
   -framework ApplicationServices \
   -framework CoreGraphics \
   -framework CoreImage \
+  -framework WebKit \
   $SWIFT_FILES \
   -o "$BIN_DIR/LazyTypeCompanion-x86_64"
 
