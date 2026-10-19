@@ -1,6 +1,6 @@
 {
   "name": "lazytype",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Local Android-to-Mac companion controller for hands-free video call chat and typing.",
   "scripts": {
     "build:mac": "bash scripts/build-mac.sh",
