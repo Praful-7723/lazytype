@@ -17,11 +17,13 @@
 
   <br /><br />
 
-  <!-- Hero Inline Video Player (Native GitHub HTML5 Player) -->
-  <video src="https://github.com/user-attachments/assets/8c188a2b-aa91-4478-8376-325deeeb1b3a" controls="controls" width="360" style="max-width: 100%; border-radius: 12px;"></video>
+  <!-- Hero Motion Reel Showcase -->
+  <a href="https://github.com/Praful-7723/lazytype/releases/download/v2.0.0/lazytype_demo_reel.mp4">
+    <img src="./assets/demo_reel.gif" alt="LazyType Stealth Typing Demo" width="360" />
+  </a>
   <br /><br />
   <p align="center">
-    <a href="https://github.com/user-attachments/assets/8c188a2b-aa91-4478-8376-325deeeb1b3a"><img src="https://img.shields.io/badge/▶_PLAY_ORIGINAL_QUALITY_(60FPS)-FF3838?style=for-the-badge&logo=youtube&logoColor=white" alt="Play Video" /></a>
+    <a href="https://github.com/Praful-7723/lazytype/releases/download/v2.0.0/lazytype_demo_reel.mp4"><img src="https://img.shields.io/badge/▶_WATCH_FULL_REEL_(60FPS)-FF3838?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Reel" /></a>
     <a href="https://github.com/Praful-7723/lazytype/releases/download/v2.0.0/lazytype_demo_reel.mp4"><img src="https://img.shields.io/badge/DOWNLOAD_MP4_(60FPS)-20242A?style=for-the-badge&logo=apple&logoColor=white" alt="Download MP4" /></a>
   </p>
   <sub>30s Master Reel · 1080×1920 @ 60fps · Zero Latency Local P2P · Native macOS</sub>
