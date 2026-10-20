@@ -14,6 +14,15 @@
   <a href="#03--installation--onboarding"><img src="https://img.shields.io/badge/CHROME_EXTENSION-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Extension" /></a>
   <a href="#05--security--local-enclave"><img src="https://img.shields.io/badge/LOCAL_FIRST-27485C?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Local First" /></a>
   <a href="https://github.com/Praful-7723/lazytype/blob/main/LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-gray?style=for-the-badge" alt="MIT License" /></a>
+
+  <br /><br />
+
+  <!-- Hero Reel Animated Showcase -->
+  <a href="./assets/lazytype_demo_reel.mp4">
+    <img src="./assets/demo_reel.gif" alt="LazyType Stealth Typing Demo" width="360" />
+  </a>
+  <br />
+  <sub>🎬 <b><a href="./assets/lazytype_demo_reel.mp4">Watch Full 60fps Master Video Reel (30s)</a></b> · Zero latency · Local peer-to-peer · Native macOS</sub>
 </div>
 
 <br />
@@ -40,6 +49,33 @@ During presentations, remote team calls, or multi-monitor setups, typing on your
     </td>
   </tr>
 </table>
+
+<br />
+
+### `HOW IT WORKS IN PRACTICE`
+
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <a href="./assets/demo_reclined_dev.jpg">
+        <img src="./assets/demo_reclined_dev.jpg" alt="Stay Reclined in Video Calls" width="100%" />
+      </a>
+      <br/>
+      <b>01 · Stay In Frame & Relaxed</b>
+      <p align="left"><small>Lean back comfortably in your chair with your feet up. Your laptop webcam stays locked on you while you casually hold your smartphone below frame level.</small></p>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <a href="./assets/demo_meeting_stream.jpg">
+        <img src="./assets/demo_meeting_stream.jpg" alt="Real-Time Mobile-to-Mac Ingress" width="100%" />
+      </a>
+      <br/>
+      <b>02 · Real-Time Chat Ingress</b>
+      <p align="left"><small>Type silently on your phone or use mobile voice dictation. Keystrokes flow seamlessly across local Wi-Fi straight into Zoom, Google Meet, or Slack chats.</small></p>
+    </td>
+  </tr>
+</table>
+
+<br />
 
 ## `02 / SYSTEM ARCHITECTURE`
 
@@ -84,6 +120,8 @@ LazyType is engineered into three lightweight, decoupled layers that communicate
 | **Phone Companion** | Mobile Web App (`phone/`) | HTML5, CSS3, ES6 JavaScript | Standalone PWA served from Mac, with thumb-friendly controls and haptic feedback |
 | **Browser Bridge** | Chromium MV3 Extension (`extension/`) | Manifest V3, Content Scripts | Injects reactive DOM events (`beforeinput`, `input`, Enter) into Google Meet and web calls |
 
+<br />
+
 ## `03 / INSTALLATION & ONBOARDING`
 
 <table>
@@ -120,13 +158,13 @@ npm install
 ### `30-Second Quickstart`
 
 1. **Install:** Double-click `LazyType-2.0.0.dmg` and drag `LazyType` into `/Applications`.
-2. **First-Launch:** Open `LazyType.app` from your Applications folder. (If blocked by Gatekeeper, click *"Open Anyway"* in System Settings > Privacy & Security).
-3. **Onboarding Guide:** The setup guide immediately opens:
+2. **First Launch:** Open `LazyType.app` from your Applications folder. (If prompted by Gatekeeper, click *"Open Anyway"* in System Settings > Privacy & Security).
+3. **Onboarding Guide:** The setup guide opens automatically:
    - **macOS Accessibility:** Click *Open System Settings* and toggle LazyType **ON**.
-   - **Chrome Extension:** Click *Download Extension (.zip)*, reveal the folder, and drag it into `chrome://extensions` (with *Developer mode* enabled).
-4. **Scan & Type:** Click the menu bar mascot, tap **Pair Phone**, scan the QR code with your phone camera, and start typing!
-   - **Chrome Extension:** Click *Download Extension (.zip)*, reveal the folder, and drag it into `chrome://extensions` (with *Developer mode* enabled).
-3. **Scan & Type:** Click the menu bar mascot, tap **Pair Phone**, scan the QR code with your phone camera, and start typing!
+   - **Chrome Extension:** Click *Download Extension (.zip)*, extract the folder, and drag it into `chrome://extensions` (with *Developer mode* enabled).
+4. **Scan & Type:** Click the menu bar mascot, tap **Pair Phone**, scan the QR code with your phone camera, and start typing immediately!
+
+<br />
 
 ## `04 / COMPONENT DIRECTORY`
 
@@ -138,6 +176,8 @@ npm install
 | [`scripts/build-mac.sh`](scripts/build-mac.sh) | Universal 2 Compiler | Dual-slice compilation (`arm64` + `x86_64`) fused via `lipo` |
 | [`scripts/create-dmg.sh`](scripts/create-dmg.sh) | Direct DMG Builder | Generates clean Apple disk image with native Applications folder link |
 | [`scripts/test-e2e.js`](scripts/test-e2e.js) | Automated Test Suite | Comprehensive 23-point verification covering handshake, auth, and DOM |
+
+<br />
 
 ## `05 / SECURITY & LOCAL ENCLAVE`
 
@@ -159,6 +199,8 @@ Remote typing requires strict local security guarantees. LazyType operates under
     </td>
   </tr>
 </table>
+
+<br />
 
 ## `06 / AUTOMATED VERIFICATION`
 
@@ -199,6 +241,8 @@ npm test
    ALL 23 TESTS PASSED (100% SUCCESS RATE)
 ============================================================
 ```
+
+<br />
 
 ## `07 / RELEASES & DISTRIBUTION`
 
