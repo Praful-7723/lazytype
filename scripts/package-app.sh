@@ -70,3 +70,8 @@ PLIST
 
 echo "==> App bundle successfully created at $APP_BUNDLE"
 ls -ld "$APP_BUNDLE"
+
+# Ad-hoc code sign the application bundle so macOS recognizes valid binary hashes
+echo "==> Ad-hoc code signing $APP_NAME.app..."
+codesign --force --deep --sign - "$APP_BUNDLE"
+codesign -vvv "$APP_BUNDLE"

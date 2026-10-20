@@ -31,13 +31,18 @@ public final class OnboardingWindowController: NSWindowController, WKScriptMessa
     
     public func show() {
         loadContent()
-        window?.makeKeyAndOrderFront(nil)
+        guard let win = self.window else { return }
+        win.center()
+        win.level = .floating // Float above other windows so user sees it immediately on launch
+        win.makeKeyAndOrderFront(nil)
+        win.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: true)
         
         startStatusTimer()
     }
     
     public override func close() {
+        window?.level = .normal
         statusTimer?.invalidate()
         statusTimer = nil
         super.close()
@@ -102,6 +107,7 @@ public final class OnboardingWindowController: NSWindowController, WKScriptMessa
             QRWindowController.shared.showQR()
             
         case "complete":
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding_v2")
             UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
             self.close()
             

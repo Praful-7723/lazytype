@@ -120,6 +120,10 @@ hdiutil convert \
 
 rm -f "$TEMP_DMG"
 
+# Code sign the DMG file
+echo "==> Ad-hoc signing DMG file..."
+codesign --force --sign - "$FINAL_DMG" 2>/dev/null || true
+
 # 6. Verify DMG contents
 echo "==> Verifying final DMG contents..."
 VERIFY_MOUNT=$(hdiutil attach "$FINAL_DMG" -nobrowse -readonly | grep -o '/Volumes/.*' | head -n 1)

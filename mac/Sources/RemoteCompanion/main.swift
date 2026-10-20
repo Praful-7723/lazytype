@@ -22,8 +22,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Check accessibility
         if !PermissionsHelper.isAccessibilityGranted() {
-            AppLogger.shared.log("Notice: Accessibility permission not yet granted. Prompting user...")
-            PermissionsHelper.promptForAccessibilityIfNeeded()
+            AppLogger.shared.log("Notice: Accessibility permission not yet granted.")
         } else {
             AppLogger.shared.log("Accessibility permission is active ✓")
         }
@@ -31,9 +30,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup menu bar item
         MenuBarManager.shared.setup()
         
-        // Show onboarding automatically on first launch
-        if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        // Show onboarding automatically if incomplete, permissions missing, or extension not connected
+        let hasCompleted = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding_v2")
+        let isAccessibilityGranted = PermissionsHelper.isAccessibilityGranted()
+        let isExtensionConnected = AdapterRegistry.shared.browserBridgeAdapter.isExtensionConnected
+        
+        if !hasCompleted || !isAccessibilityGranted || !isExtensionConnected {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 OnboardingWindowController.shared.show()
             }
         }
@@ -46,6 +49,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         print("  Pairing URL: \(pairUrl)")
         print("  Interactive Demo: http://127.0.0.1:\(port)/demo")
         print("----------------------------------------------------------------")
+    }
+    
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        AppLogger.shared.log("Reopen triggered from Finder/Dock. Showing Onboarding guide...")
+        OnboardingWindowController.shared.show()
+        return true
     }
     
     func applicationWillTerminate(_ notification: Notification) {

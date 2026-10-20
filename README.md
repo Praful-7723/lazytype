@@ -108,11 +108,23 @@ npm install
   </tr>
 </table>
 
+> [!NOTE]
+> **First Launch on macOS (Gatekeeper Unidentified Developer):**  
+> Because LazyType is free and open-source (distributed without a paid $99/year Apple Developer account), macOS Gatekeeper displays an *"Unidentified Developer"* alert on first download.  
+> **How to open in 2 clicks:**
+> 1. Open **System Settings ➔ Privacy & Security**.
+> 2. Scroll down to **Security** and click **"Open Anyway"** next to *LazyType*.
+> 3. Click **"Open"** when prompted.  
+> *(Or run `xattr -cr /Applications/LazyType.app` in Terminal).*
+
 ### `30-Second Quickstart`
 
-1. **Launch LazyType:** Open `LazyType.app` from your Applications folder. A menu bar icon appears.
-2. **First-Launch Wizard:** The native slide-by-slide onboarding guide walks you through:
+1. **Install:** Double-click `LazyType-2.0.0.dmg` and drag `LazyType` into `/Applications`.
+2. **First-Launch:** Open `LazyType.app` from your Applications folder. (If blocked by Gatekeeper, click *"Open Anyway"* in System Settings > Privacy & Security).
+3. **Onboarding Guide:** The setup guide immediately opens:
    - **macOS Accessibility:** Click *Open System Settings* and toggle LazyType **ON**.
+   - **Chrome Extension:** Click *Download Extension (.zip)*, reveal the folder, and drag it into `chrome://extensions` (with *Developer mode* enabled).
+4. **Scan & Type:** Click the menu bar mascot, tap **Pair Phone**, scan the QR code with your phone camera, and start typing!
    - **Chrome Extension:** Click *Download Extension (.zip)*, reveal the folder, and drag it into `chrome://extensions` (with *Developer mode* enabled).
 3. **Scan & Type:** Click the menu bar mascot, tap **Pair Phone**, scan the QR code with your phone camera, and start typing!
 
