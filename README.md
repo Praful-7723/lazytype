@@ -18,11 +18,15 @@
   <br /><br />
 
   <!-- Hero Reel Animated Showcase -->
-  <a href="./assets/lazytype_demo_reel.mp4">
+  <a href="https://raw.githubusercontent.com/Praful-7723/lazytype/main/assets/lazytype_demo_reel.mp4">
     <img src="./assets/demo_reel.gif" alt="LazyType Stealth Typing Demo" width="360" />
   </a>
-  <br />
-  <sub>🎬 <b><a href="./assets/lazytype_demo_reel.mp4">Watch Full 60fps Master Video Reel (30s)</a></b> · Zero latency · Local peer-to-peer · Native macOS</sub>
+  <br /><br />
+  <p align="center">
+    <a href="https://raw.githubusercontent.com/Praful-7723/lazytype/main/assets/lazytype_demo_reel.mp4"><img src="https://img.shields.io/badge/▶_WATCH_VIDEO_(WITH_AUDIO)-FF3838?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Video" /></a>
+    <a href="https://github.com/Praful-7723/lazytype/releases/download/v2.0.0/lazytype_demo_reel.mp4"><img src="https://img.shields.io/badge/DOWNLOAD_MP4_(60FPS)-20242A?style=for-the-badge&logo=quicktime&logoColor=white" alt="Download MP4" /></a>
+  </p>
+  <sub>Zero latency · Local peer-to-peer · Native macOS</sub>
 </div>
 
 <br />
