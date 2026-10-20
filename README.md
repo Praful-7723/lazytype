@@ -17,16 +17,14 @@
 
   <br /><br />
 
-  <!-- Hero Reel Animated Showcase -->
-  <a href="https://raw.githubusercontent.com/Praful-7723/lazytype/main/assets/lazytype_demo_reel.mp4">
-    <img src="./assets/demo_reel.gif" alt="LazyType Stealth Typing Demo" width="360" />
-  </a>
+  <!-- Hero Inline Video Player (Native GitHub HTML5 Player) -->
+  <video src="https://github.com/user-attachments/assets/8c188a2b-aa91-4478-8376-325deeeb1b3a" controls="controls" width="360" style="max-width: 100%; border-radius: 12px;"></video>
   <br /><br />
   <p align="center">
-    <a href="https://raw.githubusercontent.com/Praful-7723/lazytype/main/assets/lazytype_demo_reel.mp4"><img src="https://img.shields.io/badge/▶_WATCH_VIDEO_(WITH_AUDIO)-FF3838?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Video" /></a>
-    <a href="https://github.com/Praful-7723/lazytype/releases/download/v2.0.0/lazytype_demo_reel.mp4"><img src="https://img.shields.io/badge/DOWNLOAD_MP4_(60FPS)-20242A?style=for-the-badge&logo=quicktime&logoColor=white" alt="Download MP4" /></a>
+    <a href="https://github.com/user-attachments/assets/8c188a2b-aa91-4478-8376-325deeeb1b3a"><img src="https://img.shields.io/badge/▶_PLAY_ORIGINAL_QUALITY_(60FPS)-FF3838?style=for-the-badge&logo=youtube&logoColor=white" alt="Play Video" /></a>
+    <a href="https://github.com/Praful-7723/lazytype/releases/download/v2.0.0/lazytype_demo_reel.mp4"><img src="https://img.shields.io/badge/DOWNLOAD_MP4_(60FPS)-20242A?style=for-the-badge&logo=apple&logoColor=white" alt="Download MP4" /></a>
   </p>
-  <sub>Zero latency · Local peer-to-peer · Native macOS</sub>
+  <sub>30s Master Reel · 1080×1920 @ 60fps · Zero Latency Local P2P · Native macOS</sub>
 </div>
 
 <br />
@@ -60,21 +58,29 @@ During presentations, remote team calls, or multi-monitor setups, typing on your
 
 <table>
   <tr>
-    <td width="50%" align="center" valign="top">
+    <td width="33%" align="center" valign="top">
       <a href="./assets/demo_reclined_dev.jpg">
         <img src="./assets/demo_reclined_dev.jpg" alt="Stay Reclined in Video Calls" width="100%" />
       </a>
-      <br/>
-      <b>01 · Stay In Frame & Relaxed</b>
+      <br/><br/>
+      <b>01 · Stay In Frame</b>
       <p align="left"><small>Lean back comfortably in your chair with your feet up. Your laptop webcam stays locked on you while you casually hold your smartphone below frame level.</small></p>
     </td>
-    <td width="50%" align="center" valign="top">
+    <td width="33%" align="center" valign="top">
       <a href="./assets/demo_meeting_stream.jpg">
         <img src="./assets/demo_meeting_stream.jpg" alt="Real-Time Mobile-to-Mac Ingress" width="100%" />
       </a>
-      <br/>
+      <br/><br/>
       <b>02 · Real-Time Chat Ingress</b>
       <p align="left"><small>Type silently on your phone or use mobile voice dictation. Keystrokes flow seamlessly across local Wi-Fi straight into Zoom, Google Meet, or Slack chats.</small></p>
+    </td>
+    <td width="33%" align="center" valign="top">
+      <a href="./assets/demo_reel.gif">
+        <img src="./assets/demo_reel.gif" alt="Stealth Ingress Animation" width="100%" />
+      </a>
+      <br/><br/>
+      <b>03 · Zero-Latency Motion</b>
+      <p align="left"><small>Local RFC 6455 WebSockets and native macOS accessibility events ensure keystrokes land instantly with zero cloud lag.</small></p>
     </td>
   </tr>
 </table>
